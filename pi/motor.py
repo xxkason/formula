@@ -1,16 +1,11 @@
+# encoding:utf8  
 # motor.py
 import RPi.GPIO as GPIO
 
 GPIO.setmode(GPIO.BOARD)
 
-# since raspberry pi 3 only have 2 PWM output
+# since raspberry pi 3 have only 2 PWM outputs
 # so rpi3 can only control the speed of 2 motors
-
-# DC or Step motor control pins
-# MOTOR_CLK = 7     # pin 4 on the shield
-# MOTOR_ENABLE = 11 # pin 7 on the shield
-# MOTOR_DATA = 13   # pin 8 on the shield
-# MOTOR_LATCH = 15  # pin 12 on the shield
 
 # DC or Step motor PWM signal pins
 # DC Motor#1 / Step Motor#1 PWM: pin 11 on the shield
@@ -30,16 +25,12 @@ GPIO.setmode(GPIO.BOARD)
 # 	MOTOR34_8KHZ
 # 	MOTOR34_1KHZ
 
-# PWM_1 = 16
-# PWM_2 = 18
-# PWM_FREQUENCY = 1000
-
 class Motor(object):
 	# DC or Step motor control pins
-	MOTOR_CLK = 7     # pin 4 on the shield
-	MOTOR_ENABLE = 11 # pin 7 on the shield
-	MOTOR_DATA = 13   # pin 8 on the shield
-	MOTOR_LATCH = 15  # pin 12 on the shield
+	MOTOR_CLK = 7     # pi GPIO4 --> shield pin 4
+	MOTOR_ENABLE = 11 # pi GPIO17 --> shield pin 7
+	MOTOR_DATA = 13   # pi GPIO27 --> shield pin 8
+	MOTOR_LATCH = 15  # pi GPIO22 --> shield pin 12
 
 	# Bit positions in the 74HCT595 shift register output
 	MOTOR1_A = 2
@@ -55,11 +46,18 @@ class Motor(object):
 	FORWARD = 1
 	BACKWARD = 2
 
-	def __init__(self, num, pwm_pin = 16, pwm_frequency  = 1000):
+	GPIO.setup(MOTOR_CLK, GPIO.OUT)
+	GPIO.setup(MOTOR_DATA, GPIO.OUT)
+	GPIO.setup(MOTOR_ENABLE, GPIO.OUT, initial = GPIO.LOW)
+	GPIO.setup(MOTOR_LATCH, GPIO.OUT)
+
+	def __init__(self, num, pwm_pin, fake_pwm = False, pwm_frequency  = 1000):
 		self.__latch_state = 0
-		GPIO.setup(pwm_pin, GPIO.OUT)
-		self.__pwm = GPIO.PWM(pwm_pin, pwm_frequency)
-		self.__speed = 50
+		self.__pwm_pin = pwm_pin
+		GPIO.setup(self.__pwm_pin, GPIO.OUT)
+		if not fake_pwm:
+			self.__pwm = GPIO.PWM(self.__pwm_pin, pwm_frequency)
+			self.__speed = 50
 		if num == 1:
 			self.__a = Motor.MOTOR1_A
 			self.__b = Motor.MOTOR1_B
@@ -79,8 +77,7 @@ class Motor(object):
 		self.__latch_tx()
 
 	def __del__(self):
-		self.__pwm.stop()
-		GPIO.cleanup()
+		self.stop()
 
 	def __BV(self, bit):
 		return (1 << (bit))
@@ -103,7 +100,10 @@ class Motor(object):
 		self.__latch_state &= ~self.__BV(self.__a)
 		self.__latch_state &= ~self.__BV(self.__b)
 		self.__latch_tx()
-		self.__pwm.stop()
+		if fake_pwm:
+			GPIO.output(self.__pwm_pin, GPIO.LOW)
+		else:
+			self.__pwm.stop()
 	
 	def run(self, direction):
 		if direction == Motor.FORWARD:
@@ -113,9 +113,15 @@ class Motor(object):
 			self.__latch_state &= ~self.__BV(self.__a)
 			self.__latch_state |= self.__BV(self.__b)
 		self.__latch_tx()
-		self.__pwm.start(self.__speed)
+		if fake_pwm:
+			GPIO.output(self.__pwm_pin, GPIO.HIGH)
+		else:
+			self.__pwm.start(self.__speed)
 
 	def setSpeed(self, speed):
+		if fake_pwm:
+			print "Unable to change the motor speed with fake pwm signal"
+			return
 		if speed < 0:
 			self.__speed = 0
 		elif speed > 100:
