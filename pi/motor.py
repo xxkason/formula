@@ -37,7 +37,7 @@ RELEASE = 4
 
 class motor:
 	def __init__(self, num):
-		self.number = num
+		self.latch_state = 0
 		if num == 1:
 			self.A = MOTOR1_A
 			self.B = MOTOR1_B
@@ -52,6 +52,25 @@ class motor:
 			self.B = MOTOR4_B
 		else:
 			raise Exception('Unsupported Motor Number')
+		self.number = num
+		self.latch_state &= ~self.__BV(self.A) & ~self.__BV(self.B)
 
-	def __BV(bit):
-    return (1 << (bit))
+	def __BV(self, bit):
+		return (1 << (bit))
+
+	def __latch_tx(self):
+		GPIO.output(MOTOR_LATCH, GPIO.LOW)
+		GPIO.output(MOTOR_DATA, GPIO.LOW)
+		for i in range(8):
+			GPIO.output(MOTOR_CLK, GPIO.LOW)
+			if (self.latch_state & self.__BV(7-i)):
+				GPIO.output(MOTOR_DATA, GPIO.HIGH)
+			else:
+				GPIO.output(MOTOR_DATA, GPIO.LOW)
+			GPIO.output(MOTOR_CLK, GPIO.HIGH)
+		else:
+			GPIO.output(MOTOR_LATCH, GPIO.HIGH)
+
+	def stop(self):
+		self.latch_state &= ~self.__BV(self.A)
+		self.latch_state &= ~self.__BV(self.B)
