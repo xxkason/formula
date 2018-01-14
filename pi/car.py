@@ -1,9 +1,11 @@
 # encoding:utf8  
 
+import bluetooth
 from motor import Motor
 from time import sleep
 import RPi.GPIO as GPIO
 
+BT_SERVER_PORT = 1
 WHEEL_PWM = 16 # GPIO23
 PWM_2 = 18 # GPIO24
 FAKE_PWM_1 = 22 # GPIO25
@@ -27,6 +29,9 @@ class ToyCar(object):
     def __del__(self):
         self.stop()
 
+    def currentSpeed(self):
+        return self.__drive_motor.getSpeed()
+
     def goForward(self):
         self.__drive_motor.stop()
         self.__drive_motor.run(Motor.FORWARD)
@@ -39,8 +44,11 @@ class ToyCar(object):
         self.__drive_motor.stop()
         self.__wheel.stop()
 
-    def gear(self, speed):
+    def changeSpeed(self, speed):
         self.__drive_motor.setSpeed(speed)
+
+    def gear(self, step):
+        self.__drive_motor.gear(step)
 
     def turnLeft(self):
         self.__wheel.stop()
@@ -106,29 +114,59 @@ class RaceCar(object):
     def wheelControl(self, angle):
         self.__wheelPWM.start(angle)
 
-toyCar = ToyCar(1, WHEEL_PWM, 2, PWM_2)
-raceCar = RaceCar(WHEEL_PWM, 1, FAKE_PWM_1, 2, FAKE_PWM_2, 
-                  3, FAKE_PWM_3, 4, FAKE_PWM_4, True, True, True, True)
+def main():
+    car = ToyCar(1, WHEEL_PWM, 2, PWM_2)
 
-# try:
-#     while(True):
-#         cmd = raw_input('f: go forward; b: go backward; s: stop; l: turn left; r: turn right\n')
-#         if cmd == 'f':
-#             go_forward()
-#         elif cmd == 'b':
-#             go_backward()
-#         elif cmd == 'l':
-#             turn_left()
-#         elif cmd == 'r':
-#             turn_right()
-#         elif cmd == 's':
-#             stop()
-#         elif cmd == 'q':
-#             stop()
-#             GPIO.cleanup()
-#         else:
-#             print "Unsupported command"
-# except KeyboardInterrupt:
-#     stop()
-#     GPIO.cleanup()
-#     print("Exiting...")
+    server_socket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+    server_socket.bind(("", BT_SERVER_PORT))
+    server_socket.listen(1) # Server listens to accept 1 connection at a time
+
+    print "Waiting for a connection..."
+    client_socket, address = server_socket.accept()
+    print "Welcom ", address
+    try:
+        while True:
+            cmd = client_socket.recv(128)
+            #print "Received command: %s" % cmd
+            if cmd == 'f':
+                print "Yes, my lord. Go! Go! Go!"
+                car.goBackward()
+            elif cmd == 'b':
+                print "Yes, my lord. Go backward"
+                car.goBackward()
+            elif cmd == 'l':
+                print "Turning left"
+                car.turnLeft()
+            elif cmd == 'r':
+                print "Turning right"
+                car.turnRight()
+            elif cmd == 's':
+                print "Stop now!"
+                car.stop()
+            elif cmd == 'acc':
+                print "Speed Up"
+                car.gear(5)
+                print "Current speed is ",car.currentSpeed()
+            elif cmd == 'deacc':
+                print "Slow down..."
+                car.gear(-5)
+                print "Current speed is ",car.currentSpeed()
+            elif cmd == 'q':
+                print "Quit"
+                car.stop()
+                break
+    except KeyboardInterrupt:
+        car.stop()
+        GPIO.cleanup()
+        print("Exiting...")
+    
+    GPIO.cleanup()
+    client_socket.close()
+    server_socket.close()
+
+# toyCar = ToyCar(1, WHEEL_PWM, 2, PWM_2)
+# raceCar = RaceCar(WHEEL_PWM, 1, FAKE_PWM_1, 2, FAKE_PWM_2, 
+#                   3, FAKE_PWM_3, 4, FAKE_PWM_4, True, True, True, True)
+
+if __name__ == "__main__":
+    main()

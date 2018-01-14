@@ -118,6 +118,9 @@ class Motor(object):
 		else:
 			self.__pwm.start(self.__speed)
 
+	def getSpeed(self):
+		return self.__speed
+
 	def setSpeed(self, speed):
 		if fake_pwm:
 			print "Unable to change the motor speed with fake pwm signal"
@@ -129,3 +132,12 @@ class Motor(object):
 		else:
 			self.__speed = speed
 		self.__pwm.ChangeDutyCycle(self.__speed)
+
+	def gear(self, step = 0):
+		if (step == 0):
+			return
+		elif (step > 0 and self.__speed >= 100):
+			return
+		elif (step < 0 and self.__speed <= 0):
+			return
+		self.setSpeed(self.__speed + step)
