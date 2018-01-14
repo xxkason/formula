@@ -58,7 +58,7 @@ class ToyCar(object):
 # 1个舵机，5V输出，PWM控制转向角度
 # 4个驱动电机，驱动不能调速，全速转动
 class RaceCar(object):
-    def __init__(self，wheel_pwm_pin, 
+    def __init__(self, wheel_pwm_pin, 
     lfm_num, lfm_pwm_pin, 
     lbm_num, lbm_pwm_pin,
     rfm_num, rfm_pwm_pin,
