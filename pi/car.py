@@ -123,7 +123,7 @@ def main():
 
     print "Waiting for a connection..."
     client_socket, address = server_socket.accept()
-    print "Welcom ", address
+    print "Welcome ", address
     try:
         while True:
             cmd = client_socket.recv(128)

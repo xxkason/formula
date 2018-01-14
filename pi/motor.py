@@ -55,7 +55,8 @@ class Motor(object):
 		self.__latch_state = 0
 		self.__pwm_pin = pwm_pin
 		GPIO.setup(self.__pwm_pin, GPIO.OUT)
-		if not fake_pwm:
+		self.__fake_pwm = fake_pwm
+		if not self.__fake_pwm:
 			self.__pwm = GPIO.PWM(self.__pwm_pin, pwm_frequency)
 			self.__speed = 50
 		if num == 1:
@@ -100,7 +101,7 @@ class Motor(object):
 		self.__latch_state &= ~self.__BV(self.__a)
 		self.__latch_state &= ~self.__BV(self.__b)
 		self.__latch_tx()
-		if fake_pwm:
+		if self.__fake_pwm:
 			GPIO.output(self.__pwm_pin, GPIO.LOW)
 		else:
 			self.__pwm.stop()
@@ -113,7 +114,7 @@ class Motor(object):
 			self.__latch_state &= ~self.__BV(self.__a)
 			self.__latch_state |= self.__BV(self.__b)
 		self.__latch_tx()
-		if fake_pwm:
+		if self.__fake_pwm:
 			GPIO.output(self.__pwm_pin, GPIO.HIGH)
 		else:
 			self.__pwm.start(self.__speed)
@@ -122,7 +123,7 @@ class Motor(object):
 		return self.__speed
 
 	def setSpeed(self, speed):
-		if fake_pwm:
+		if self.__fake_pwm:
 			print "Unable to change the motor speed with fake pwm signal"
 			return
 		if speed < 0:
