@@ -157,6 +157,8 @@ def main():
     except KeyboardInterrupt:
         car.stop()
         GPIO.cleanup()
+        client_socket.close()
+        server_socket.close()
         print("Exiting...")
     
     GPIO.cleanup()
