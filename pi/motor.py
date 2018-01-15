@@ -1,6 +1,7 @@
 # encoding:utf8  
 # motor.py
 import RPi.GPIO as GPIO
+from enum import Enum, unique
 
 GPIO.setmode(GPIO.BOARD)
 
@@ -24,6 +25,11 @@ GPIO.setmode(GPIO.BOARD)
 # 	MOTOR34_64KHZ
 # 	MOTOR34_8KHZ
 # 	MOTOR34_1KHZ
+
+@unique
+class MotorState(Enum):
+  Running = 0
+  Stopped = 1
 
 class Motor(object):
 	# DC or Step motor control pins
@@ -53,6 +59,7 @@ class Motor(object):
 
 	def __init__(self, num, pwm_pin, fake_pwm = False, pwm_frequency  = 1000):
 		self.__latch_state = 0
+		self.__state = MotorState.Stopped
 		self.__pwm_pin = pwm_pin
 		GPIO.setup(self.__pwm_pin, GPIO.OUT)
 		self.__fake_pwm = fake_pwm
@@ -105,6 +112,7 @@ class Motor(object):
 			GPIO.output(self.__pwm_pin, GPIO.LOW)
 		else:
 			self.__pwm.stop()
+		self.__state = MotorState.Stopped
 	
 	def run(self, direction):
 		if direction == Motor.FORWARD:
@@ -118,11 +126,18 @@ class Motor(object):
 			GPIO.output(self.__pwm_pin, GPIO.HIGH)
 		else:
 			self.__pwm.start(self.__speed)
+		self.__state = MotorState.Running
 
 	def getSpeed(self):
-		return self.__speed
+		if self.__state:
+			return 0
+		else:
+			return self.__speed
 
 	def setSpeed(self, speed):
+		if self.__state:
+			print "Unable to set motor speed when it is stopped"
+			return
 		if self.__fake_pwm:
 			print "Unable to change the motor speed with fake pwm signal"
 			return
@@ -136,9 +151,5 @@ class Motor(object):
 
 	def gear(self, step = 0):
 		if (step == 0):
-			return
-		elif (step > 0 and self.__speed >= 100):
-			return
-		elif (step < 0 and self.__speed <= 0):
 			return
 		self.setSpeed(self.__speed + step)

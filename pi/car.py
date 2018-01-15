@@ -72,8 +72,7 @@ class RaceCar(object):
     rfm_num, rfm_pwm_pin,
     rbm_num, rbm_pwm_pin,
     lfm_fake_pwm = False, lbm_fake_pwm = False,
-    rfm_fake_pwm = False, rbm_fake_pwm = False
-    ):
+    rfm_fake_pwm = False, rbm_fake_pwm = False):
         self.__leftFront = Motor(lfm_num, lfm_pwm_pin, lfm_fake_pwm)
         self.__leftBehind = Motor(lbm_num, lbm_pwm_pin, lbm_fake_pwm)
         self.__rightFront = Motor(rfm_num, rfm_pwm_pin, rfm_fake_pwm)
