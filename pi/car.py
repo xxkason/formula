@@ -129,7 +129,7 @@ def main():
             #print "Received command: %s" % cmd
             if cmd == 'f':
                 print "Yes, my lord. Go! Go! Go!"
-                car.goBackward()
+                car.goForward()
             elif cmd == 'b':
                 print "Yes, my lord. Go backward"
                 car.goBackward()
@@ -142,11 +142,11 @@ def main():
             elif cmd == 's':
                 print "Stop now!"
                 car.stop()
-            elif cmd == 'acc':
+            elif cmd == 'a':
                 print "Speed Up"
                 car.gear(5)
                 print "Current speed is ",car.currentSpeed()
-            elif cmd == 'deacc':
+            elif cmd == 'd':
                 print "Slow down..."
                 car.gear(-5)
                 print "Current speed is ",car.currentSpeed()

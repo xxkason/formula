@@ -5,6 +5,7 @@
 #define MAX_SPEED 255
 #define MIN_SPEED 50
 #define BAUD_RATE 9600
+#define CENTER_POSITION 90
 
 Servo wheel;
 AF_DCMotor lfMotor(1);
@@ -20,6 +21,7 @@ void setup() {
   lbMotor.setSpeed(MAX_SPEED);
   rfMotor.setSpeed(MAX_SPEED);
   rbMotor.setSpeed(MAX_SPEED);
+  wheel.write(CENTER_POSITION);
   lfMotor.run(RELEASE);
   lbMotor.run(RELEASE);
   rfMotor.run(RELEASE);
