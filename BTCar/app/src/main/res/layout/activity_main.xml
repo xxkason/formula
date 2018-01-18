@@ -14,7 +14,8 @@
         android:layout_marginEnd="108dp"
         android:layout_marginStart="82dp"
         android:layout_marginTop="61dp"
-        android:background="@android:drawable/arrow_up_float"
+        android:background="@android:color/background_dark"
+        android:foreground="@android:drawable/arrow_up_float"
         app:layout_constraintEnd_toStartOf="@+id/btnLeft"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -26,7 +27,8 @@
         android:layout_marginEnd="221dp"
         android:layout_marginStart="82dp"
         android:layout_marginTop="17dp"
-        android:background="@android:drawable/arrow_down_float"
+        android:background="@android:color/black"
+        android:foreground="@android:drawable/arrow_down_float"
         app:layout_constraintEnd_toStartOf="@+id/btnRight"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnUp" />
@@ -37,7 +39,8 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="25dp"
         android:layout_marginTop="65dp"
-        android:background="@android:drawable/ic_media_rew"
+        android:background="@android:color/black"
+        android:foreground="@android:drawable/ic_media_rew"
         app:layout_constraintEnd_toStartOf="@+id/btnRight"
         app:layout_constraintStart_toEndOf="@+id/btnUp"
         app:layout_constraintTop_toBottomOf="@+id/btnConnect" />
@@ -47,7 +50,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="83dp"
-        android:background="@android:drawable/ic_media_ff"
+        android:background="@android:color/black"
+        android:foreground="@android:drawable/ic_media_ff"
         app:layout_constraintBaseline_toBaselineOf="@+id/btnLeft"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btnDown" />

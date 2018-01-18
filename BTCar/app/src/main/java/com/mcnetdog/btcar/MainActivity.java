@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements OnTouchListener {
                 pairedDevices = myBluetooth.getBondedDevices();
                 if (pairedDevices.size() > 0)
                 {
-
+                    BluetoothDevice dispositivo = myBluetooth.getRemoteDevice(address);//connects to the device's address and checks if it's available
                 }
             }
         }
