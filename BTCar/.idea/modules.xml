@@ -3,7 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/BTCar.iml" filepath="$PROJECT_DIR$/BTCar.iml" />
+      <module fileurl="file://C:\repos\formula\BTCar\BTCar.iml" filepath="C:\repos\formula\BTCar\BTCar.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://C:\repos\formula\BTCar\app\app.iml" filepath="C:\repos\formula\BTCar\app\app.iml" />
     </modules>
   </component>
 </project>
