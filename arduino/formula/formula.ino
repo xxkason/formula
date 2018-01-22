@@ -34,9 +34,10 @@ void setup() {
 }
 
 void loop() {
-  if (Serial.readBytes(cmd, 1) > 0)
+  if (Serial.available() > 0)
   {
-    switch (cmd[0]) {
+    cmd = Serial.read();
+    switch (cmd) {
       case 'f':
         goForward();
         break;
@@ -44,54 +45,19 @@ void loop() {
         goForward();
         break;
       case 'l':
-        turn(-5);
+        turn(5);
         break;
       case 'r':
-        turn(5);
+        turn(-5);
         break;
       case 's':
         stop();
         break;
-      case 'a':
-        gear(5);
-        break;
-      case 'd':
-        gear(-5);
+      case 'c':
+        wheel.write(CENTER_POSITION);
         break;
     }
   }
-  else
-  {
-    wheel.write(CENTER_POSITION);
-  }
-  
-//  if (Serial.available() > 0)
-//  {
-//    cmd = Serial.read();
-//    switch (cmd) {
-//      case 'f':
-//        goForward();
-//        break;
-//      case 'b':
-//        goForward();
-//        break;
-//      case 'l':
-//        turnLeft();
-//        break;
-//      case 'r':
-//        turnRight();
-//        break;
-//      case 's':
-//        stop();
-//        break;
-//      case 'a':
-//        gear(5);
-//        break;
-//      case 'd':
-//        gear(-5);
-//        break;
-//    }
-//  }
 }
 
 void goForward()
