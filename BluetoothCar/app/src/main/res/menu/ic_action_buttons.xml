@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- "Mark Favorite", should appear as action button if possible -->
+    <item
+        android:id="@+id/action_bluetooth"
+        android:icon="@drawable/ic_bluetooth_logo_icon"
+        android:title="@string/action_connect"
+        android:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/action_disconnect"
+        android:icon="@drawable/ic_disconnected"
+        android:title="@string/action_disconnect"
+        android:showAsAction="ifRoom"/>
+
+</menu>

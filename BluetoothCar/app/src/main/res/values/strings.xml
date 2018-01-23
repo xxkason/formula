@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">BTCar</string>
     <string name="connect_state">Not connected</string>
+    <string name="action_connect">Connect</string>
+    <string name="dialog_title">Paired Devices</string>
+    <string name="action_disconnect">Disconnect</string>
 </resources>
