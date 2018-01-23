@@ -17,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +31,7 @@ import java.util.UUID;
 public class MainActivity extends Activity implements View.OnTouchListener {
     static final int ENABLE_BLUETOOTH_REQUEST = 1;
     ImageButton btnUp, btnDown, btnLeft, btnRight;
+    SeekBar speedBar;
     Timer timer = null;
 
     private BluetoothAdapter myBluetooth = null;
@@ -55,11 +57,28 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         btnDown = this.findViewById(R.id.downBtn);
         btnLeft = this.findViewById(R.id.leftBtn);
         btnRight = this.findViewById(R.id.rightBtn);
+        speedBar = this.findViewById(R.id.speedBar);
 
         btnUp.setOnTouchListener(this);
         btnDown.setOnTouchListener(this);
         btnLeft.setOnTouchListener(this);
         btnRight.setOnTouchListener(this);
+        speedBar.setOnSeekBarChangeListener(new speedChangeListener());
+    }
+
+    private class speedChangeListener implements SeekBar.OnSeekBarChangeListener {
+        public void onProgressChanged(SeekBar seekBar, int progress,
+                                      boolean fromUser) {
+            System.out.println("滑动" + progress);
+        }
+
+        public void onStartTrackingTouch(SeekBar seekBar) {
+            System.out.println("Start");
+        }
+
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            System.out.println("Stop");
+        }
     }
 
     @Override
