@@ -8,7 +8,7 @@
         android:showAsAction="ifRoom"/>
     <item
         android:id="@+id/action_disconnect"
-        android:icon="@drawable/ic_disconnected"
+        android:icon="@drawable/ic_broken_link"
         android:title="@string/action_disconnect"
         android:showAsAction="ifRoom"/>
 

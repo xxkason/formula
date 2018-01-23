@@ -5,10 +5,7 @@ import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,59 +30,16 @@ import java.util.UUID;
 public class MainActivity extends Activity implements View.OnTouchListener {
     static final int ENABLE_BLUETOOTH_REQUEST = 1;
     ImageButton btnUp, btnDown, btnLeft, btnRight;
+    Timer timer = null;
 
     private BluetoothAdapter myBluetooth = null;
     private BluetoothSocket btSocket = null;
     private static final UUID MY_UUID_SECURE = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-    private final BroadcastReceiver bluetoothStatusReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            if (action.equals(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED))
-            {
-                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_CONNECTION_STATE, BluetoothAdapter.ERROR);
-                switch (state)
-                {
-                    case BluetoothAdapter.STATE_CONNECTED:
-                        getActionBar().setSubtitle("Connected");
-                        invalidateOptionsMenu();
-                        break;
-                    case BluetoothAdapter.STATE_DISCONNECTED:
-                        getActionBar().setSubtitle("Not Connected");
-                        invalidateOptionsMenu();
-                        break;
-                    case BluetoothAdapter.STATE_CONNECTING:
-                        getActionBar().setSubtitle("Connecting...");
-                        break;
-                    case BluetoothAdapter.STATE_DISCONNECTING:
-                        getActionBar().setSubtitle("Disconnecting...");
-                        break;
-                }
-            }
-        }
-    };
-
-    Timer timer = new Timer(true);
-    TimerTask turnLeftTask = new TimerTask() {
-        @Override
-        public void run() {
-            sendCommand("l");
-        }
-    };
-    TimerTask turnRightTask = new TimerTask() {
-        @Override
-        public void run() {
-            sendCommand("r");
-        }
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        IntentFilter btStateFilter = new IntentFilter(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED);
-        registerReceiver(bluetoothStatusReceiver, btStateFilter);
         getActionBar().setSubtitle(R.string.connect_state);
         myBluetooth = BluetoothAdapter.getDefaultAdapter();
         if (myBluetooth == null){
@@ -109,12 +63,6 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     }
 
     @Override
-    protected void onDestroy(){
-        super.onDestroy();
-        unregisterReceiver(bluetoothStatusReceiver);
-    }
-
-    @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
         if (motionEvent.getAction() == MotionEvent.ACTION_DOWN)
         {
@@ -126,10 +74,10 @@ public class MainActivity extends Activity implements View.OnTouchListener {
                     sendCommand("b");
                     break;
                 case R.id.leftBtn:
-                    timer.schedule(turnLeftTask, 100, 400);
+                    startTimer("l");
                     break;
                 case R.id.rightBtn:
-                    timer.schedule(turnRightTask, 100, 400);
+                    startTimer("r");
                     break;
             }
         }
@@ -142,12 +90,30 @@ public class MainActivity extends Activity implements View.OnTouchListener {
                     break;
                 case R.id.leftBtn:
                 case R.id.rightBtn:
-                    timer.cancel();
+                    stopTimer();
                     sendCommand("c");
                     break;
             }
         }
         return true;
+    }
+
+    private void startTimer(final String cmd)
+    {
+        timer = new Timer(true);
+        TimerTask timeTask = new TimerTask() {
+            @Override
+            public void run() {
+                sendCommand(cmd);
+            }
+        };
+        timer.schedule(timeTask, 100, 400);
+    }
+
+    private void stopTimer()
+    {
+        if (timer != null)
+            timer.cancel();
     }
 
     private void sendCommand (String cmd){
@@ -181,22 +147,26 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         switch (item.getItemId()){
             case R.id.action_bluetooth:
                 showPairedList();
-                return true;
+                break;
             case R.id.action_disconnect:
                 try
                 {
                     if (btSocket != null)
                         btSocket.close();
+                    updateSubtitle();
+                    invalidateOptionsMenu();
                 }
                 catch (IOException e)
                 {
                     msg("Close bluetooth connection failed.");
                 }
+                break;
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
         }
+        return true;
     }
 
     public void showPairedList() {
@@ -243,6 +213,8 @@ public class MainActivity extends Activity implements View.OnTouchListener {
                 {
                     msg("Connection Failed. Is it a SPP Bluetooth? Try again.");
                 }
+                updateSubtitle();
+                invalidateOptionsMenu();
             }
         });
         pairedDeviceDialog.show();
@@ -254,6 +226,18 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         {
             if (resultCode == RESULT_CANCELED)
                 finish();
+        }
+    }
+
+    private void updateSubtitle()
+    {
+        if (btSocket != null && btSocket.isConnected())
+        {
+            getActionBar().setSubtitle("Connected");
+        }
+        else
+        {
+            getActionBar().setSubtitle("Not Connected");
         }
     }
 
