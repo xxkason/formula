@@ -129,35 +129,43 @@ def main():
     print "Welcome ", address
     try:
         while True:
-            cmd = client_socket.recv(128)
+            data = client_socket.recv(128)
             #print "Received command: %s" % cmd
-            if cmd == 'f':
-                print "Yes, my lord. Go! Go! Go!"
-                toycar.goForward()
-            elif cmd == 'b':
-                print "Yes, my lord. Go backward"
-                toycar.goBackward()
-            elif cmd == 'l':
-                print "Turning left"
-                toycar.turnLeft()
-            elif cmd == 'r':
-                print "Turning right"
-                toycar.turnRight()
-            elif cmd == 's':
-                print "Stop now!"
-                toycar.stop()
-            elif cmd == 'a':
-                print "Speed Up"
-                toycar.gear(5)
-                print "Current speed is ",toycar.currentSpeed()
-            elif cmd == 'd':
-                print "Slow down..."
-                toycar.gear(-5)
-                print "Current speed is ",toycar.currentSpeed()
-            elif cmd == 'q':
-                print "Quit"
-                toycar.stop()
-                break
+            if data.startwith('s:'):
+                cmd = data[2:]
+                if cmd == 'f':
+                    print "Yes, my lord. Go! Go! Go!"
+                    toycar.goForward()
+                elif cmd == 'b':
+                    print "Yes, my lord. Go backward"
+                    toycar.goBackward()
+                elif cmd == 'l':
+                    print "Turning left"
+                    toycar.turnLeft()
+                elif cmd == 'r':
+                    print "Turning right"
+                    toycar.turnRight()
+                elif cmd == 's':
+                    print "Stop now!"
+                    toycar.stop()
+                elif cmd == 'a':
+                    print "Speed Up"
+                    toycar.gear(5)
+                    print "Current speed is ",toycar.currentSpeed()
+                elif cmd == 'd':
+                    print "Slow down..."
+                    toycar.gear(-5)
+                    print "Current speed is ",toycar.currentSpeed()
+                elif cmd == 'q':
+                    print "Quit"
+                    toycar.stop()
+                    break
+            elif data.startwith('i:'):
+                try:
+                    cmd = int(data[2:])
+                except:
+                    print "invalid command"
+                toycar.changeSpeed(cmd)
     except KeyboardInterrupt:
         toycar.stop()
         GPIO.cleanup()

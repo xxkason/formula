@@ -135,11 +135,8 @@ class Motor(object):
 			return self._speed
 
 	def setSpeed(self, speed):
-		if self._state:
-			print "Unable to set motor speed when it is stopped"
-			return
 		if self._fake_pwm:
-			print "Unable to change the motor speed with fake pwm signal"
+			print "Unable to change the motor speed with fake pwm signal."
 			return
 		if speed < 0:
 			self._speed = 0

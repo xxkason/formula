@@ -33,7 +33,11 @@ import java.util.UUID;
 
 public class MainActivity extends Activity implements View.OnTouchListener {
     static final int ENABLE_BLUETOOTH_REQUEST = 1;
+    static final int SEEK_BAR_STEP = 1;
+    static final int SEEK_BAR_MIN = 0;
+    static final int SEEK_BAR_MAX = 255;
     ImageButton btnUp, btnDown, btnLeft, btnRight;
+    TextView speedText;
     SeekBar speedBar;
     Timer timer = null;
     Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -61,7 +65,9 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         btnDown = this.findViewById(R.id.downBtn);
         btnLeft = this.findViewById(R.id.leftBtn);
         btnRight = this.findViewById(R.id.rightBtn);
+        speedText = this.findViewById(R.id.speedValue);
         speedBar = this.findViewById(R.id.speedBar);
+        speedBar.setMax((SEEK_BAR_MAX - SEEK_BAR_MIN) / SEEK_BAR_STEP);
 
         btnUp.setOnTouchListener(this);
         btnDown.setOnTouchListener(this);
@@ -73,15 +79,16 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     private class speedChangeListener implements SeekBar.OnSeekBarChangeListener {
         public void onProgressChanged(SeekBar seekBar, int progress,
                                       boolean fromUser) {
-            System.out.println("Slide" + progress);
+            int speed = SEEK_BAR_MIN + (progress * SEEK_BAR_STEP);
+            speedText.setText(speed);
         }
 
         public void onStartTrackingTouch(SeekBar seekBar) {
-            System.out.println("Start");
+
         }
 
         public void onStopTrackingTouch(SeekBar seekBar) {
-            System.out.println("Stop");
+            sendCommand(String.format("i:%d", seekBar.getProgress()));
         }
     }
 
@@ -93,19 +100,19 @@ public class MainActivity extends Activity implements View.OnTouchListener {
             switch (view.getId()) {
                 case R.id.upBtn:
                     btnUp.setBackgroundColor(Color.CYAN);
-                    sendCommand("f");
+                    sendCommand("s:f");
                     break;
                 case R.id.downBtn:
                     btnDown.setBackgroundColor(Color.CYAN);
-                    sendCommand("b");
+                    sendCommand("s:b");
                     break;
                 case R.id.leftBtn:
                     btnLeft.setBackgroundColor(Color.CYAN);
-                    startTimer("l");
+                    startTimer("s:l");
                     break;
                 case R.id.rightBtn:
                     btnRight.setBackgroundColor(Color.CYAN);
-                    startTimer("r");
+                    startTimer("s:r");
                     break;
             }
         }
@@ -114,21 +121,21 @@ public class MainActivity extends Activity implements View.OnTouchListener {
             switch (view.getId()) {
                 case R.id.upBtn:
                     btnUp.setBackgroundColor(Color.WHITE);
-                    sendCommand("s");
+                    sendCommand("s:s");
                     break;
                 case R.id.downBtn:
                     btnDown.setBackgroundColor(Color.WHITE);
-                    sendCommand("s");
+                    sendCommand("s:s");
                     break;
                 case R.id.leftBtn:
                     btnLeft.setBackgroundColor(Color.WHITE);
                     stopTimer();
-                    sendCommand("c");
+                    sendCommand("s:c");
                     break;
                 case R.id.rightBtn:
                     btnRight.setBackgroundColor(Color.WHITE);
                     stopTimer();
-                    sendCommand("c");
+                    sendCommand("s:c");
                     break;
             }
         }
@@ -158,11 +165,11 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         {
             try
             {
-                btSocket.getOutputStream().write(cmd.toString().getBytes());
+                btSocket.getOutputStream().write(cmd.getBytes());
             }
             catch (IOException e)
             {
-                msg("Error");
+                msg("Send out command to connected device failed");
             }
         }
         else

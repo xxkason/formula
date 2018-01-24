@@ -14,7 +14,7 @@ AF_DCMotor lfMotor(1);
 AF_DCMotor lbMotor(2);
 AF_DCMotor rfMotor(3);
 AF_DCMotor rbMotor(4);
-char cmd[1];
+char cmd[128];
 uint8_t speed = MAX_SPEED;
 int wheelAngle = CENTER_POSITION;
 
@@ -36,7 +36,7 @@ void setup() {
 void loop() {
   if (Serial.available() > 0)
   {
-    cmd = Serial.read();
+    cmd = Serial.readString();
     switch (cmd) {
       case 'f':
         goForward();
@@ -92,10 +92,7 @@ void gear(int step)
     speed = MIN_SPEED;
   }
 
-  lfMotor.setSpeed(speed);
-  rfMotor.setSpeed(speed);
-  rbMotor.setSpeed(speed);
-  lbMotor.setSpeed(speed);
+  setSpeed(speed);
 }
 
 void stop()
@@ -122,4 +119,12 @@ void turn(int step)
     wheelAngle = MIN_POSITION;
   }
   wheel.write(wheelAngle);
+}
+
+void setSpeed(int speed)
+{
+  lfMotor.setSpeed(speed);
+  rfMotor.setSpeed(speed);
+  rbMotor.setSpeed(speed);
+  lbMotor.setSpeed(speed);
 }
