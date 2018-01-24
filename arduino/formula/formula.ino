@@ -14,7 +14,8 @@ AF_DCMotor lfMotor(1);
 AF_DCMotor lbMotor(2);
 AF_DCMotor rfMotor(3);
 AF_DCMotor rbMotor(4);
-char cmd[128];
+
+String data = "";
 uint8_t speed = MAX_SPEED;
 int wheelAngle = CENTER_POSITION;
 
@@ -36,26 +37,36 @@ void setup() {
 void loop() {
   if (Serial.available() > 0)
   {
-    cmd = Serial.readString();
-    switch (cmd) {
-      case 'f':
-        goForward();
-        break;
-      case 'b':
-        goForward();
-        break;
-      case 'l':
-        turn(5);
-        break;
-      case 'r':
-        turn(-5);
-        break;
-      case 's':
-        stop();
-        break;
-      case 'c':
-        wheel.write(CENTER_POSITION);
-        break;
+    data = Serial.readString();
+    int cmd;
+    if (data.startsWith("s:"))
+    {
+      cmd = data.substring(2).toInt();
+      switch (cmd) {
+        case 'f':
+          goForward();
+          break;
+        case 'b':
+          goForward();
+          break;
+        case 'l':
+          turn(5);
+          break;
+        case 'r':
+          turn(-5);
+          break;
+        case 's':
+          stop();
+          break;
+        case 'c':
+          wheel.write(CENTER_POSITION);
+          break;
+      }
+    }
+    else if (data.startsWith("i:"))
+    {
+      cmd = data.substring(2).toInt();
+      setSpeed(cmd);
     }
   }
 }
