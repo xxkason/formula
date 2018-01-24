@@ -5,8 +5,11 @@ import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -33,6 +36,7 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     ImageButton btnUp, btnDown, btnLeft, btnRight;
     SeekBar speedBar;
     Timer timer = null;
+    Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
     private BluetoothAdapter myBluetooth = null;
     private BluetoothSocket btSocket = null;
@@ -69,7 +73,7 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     private class speedChangeListener implements SeekBar.OnSeekBarChangeListener {
         public void onProgressChanged(SeekBar seekBar, int progress,
                                       boolean fromUser) {
-            System.out.println("滑动" + progress);
+            System.out.println("Slide" + progress);
         }
 
         public void onStartTrackingTouch(SeekBar seekBar) {
@@ -85,17 +89,22 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     public boolean onTouch(View view, MotionEvent motionEvent) {
         if (motionEvent.getAction() == MotionEvent.ACTION_DOWN)
         {
+            vibe.vibrate(100);
             switch (view.getId()) {
                 case R.id.upBtn:
+                    btnUp.setBackgroundColor(Color.BLUE);
                     sendCommand("f");
                     break;
                 case R.id.downBtn:
+                    btnDown.setBackgroundColor(Color.BLUE);
                     sendCommand("b");
                     break;
                 case R.id.leftBtn:
+                    btnLeft.setBackgroundColor(Color.BLUE);
                     startTimer("l");
                     break;
                 case R.id.rightBtn:
+                    btnRight.setBackgroundColor(Color.BLUE);
                     startTimer("r");
                     break;
             }
@@ -104,11 +113,20 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         {
             switch (view.getId()) {
                 case R.id.upBtn:
+                    btnUp.setBackgroundColor(Color.WHITE);
+                    sendCommand("s");
+                    break;
                 case R.id.downBtn:
+                    btnDown.setBackgroundColor(Color.WHITE);
                     sendCommand("s");
                     break;
                 case R.id.leftBtn:
+                    btnLeft.setBackgroundColor(Color.WHITE);
+                    stopTimer();
+                    sendCommand("c");
+                    break;
                 case R.id.rightBtn:
+                    btnRight.setBackgroundColor(Color.WHITE);
                     stopTimer();
                     sendCommand("c");
                     break;
