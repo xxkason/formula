@@ -58,31 +58,31 @@ class Motor(object):
 	GPIO.setup(MOTOR_LATCH, GPIO.OUT)
 
 	def __init__(self, num, pwm_pin, fake_pwm = False, pwm_frequency  = 1000):
-		self.__latch_state = 0
-		self.__state = MotorState.Stopped
-		self.__pwm_pin = pwm_pin
-		GPIO.setup(self.__pwm_pin, GPIO.OUT)
-		self.__fake_pwm = fake_pwm
-		if not self.__fake_pwm:
-			self.__pwm = GPIO.PWM(self.__pwm_pin, pwm_frequency)
-			self.__speed = 50
+		self._latch_state = 0
+		self._state = MotorState.Stopped
+		self._pwm_pin = pwm_pin
+		GPIO.setup(self._pwm_pin, GPIO.OUT)
+		self._fake_pwm = fake_pwm
+		if not self._fake_pwm:
+			self._pwm = GPIO.PWM(self._pwm_pin, pwm_frequency)
+			self._speed = 50
 		if num == 1:
-			self.__a = Motor.MOTOR1_A
-			self.__b = Motor.MOTOR1_B
+			self._a = Motor.MOTOR1_A
+			self._b = Motor.MOTOR1_B
 		elif num == 2:
-			self.__a = Motor.MOTOR2_A
-			self.__b = Motor.MOTOR2_B
+			self._a = Motor.MOTOR2_A
+			self._b = Motor.MOTOR2_B
 		elif num == 3:
-			self.__a = Motor.MOTOR3_A
-			self.__b = Motor.MOTOR3_B
+			self._a = Motor.MOTOR3_A
+			self._b = Motor.MOTOR3_B
 		elif num == 4:
-			self.__a = Motor.MOTOR4_A
-			self.__b = Motor.MOTOR4_B
+			self._a = Motor.MOTOR4_A
+			self._b = Motor.MOTOR4_B
 		else:
 			raise Exception('Unsupported Motor Number')
 		self.number = num
-		self.__latch_state &= ~self.__BV(self.__a) & ~self.__BV(self.__b)
-		self.__latch_tx()
+		self._latch_state &= ~self.__BV(self._a) & ~self.__BV(self._b)
+		self._latch_tx()
 
 	def __del__(self):
 		self.stop()
@@ -90,13 +90,13 @@ class Motor(object):
 	def __BV(self, bit):
 		return (1 << (bit))
 
-	def __latch_tx(self):
+	def _latch_tx(self):
 		GPIO.output(Motor.MOTOR_LATCH, GPIO.LOW)
 		GPIO.output(Motor.MOTOR_DATA, GPIO.LOW)
 
 		for i in range(8):
 			GPIO.output(Motor.MOTOR_CLK, GPIO.LOW)
-			if (self.__latch_state & self.__BV(7-i)):
+			if (self._latch_state & self.__BV(7-i)):
 				GPIO.output(Motor.MOTOR_DATA, GPIO.HIGH)
 			else:
 				GPIO.output(Motor.MOTOR_DATA, GPIO.LOW)
@@ -105,51 +105,51 @@ class Motor(object):
 		GPIO.output(Motor.MOTOR_LATCH, GPIO.HIGH)
 
 	def stop(self):
-		self.__latch_state &= ~self.__BV(self.__a)
-		self.__latch_state &= ~self.__BV(self.__b)
-		self.__latch_tx()
-		if self.__fake_pwm:
-			GPIO.output(self.__pwm_pin, GPIO.LOW)
+		self._latch_state &= ~self.__BV(self._a)
+		self._latch_state &= ~self.__BV(self._b)
+		self._latch_tx()
+		if self._fake_pwm:
+			GPIO.output(self._pwm_pin, GPIO.LOW)
 		else:
-			self.__pwm.stop()
-		self.__state = MotorState.Stopped
+			self._pwm.stop()
+		self._state = MotorState.Stopped
 	
 	def run(self, direction):
 		if direction == Motor.FORWARD:
-			self.__latch_state |= self.__BV(self.__a)
-			self.__latch_state &= ~self.__BV(self.__b)
+			self._latch_state |= self.__BV(self._a)
+			self._latch_state &= ~self.__BV(self._b)
 		elif direction == Motor.BACKWARD:
-			self.__latch_state &= ~self.__BV(self.__a)
-			self.__latch_state |= self.__BV(self.__b)
-		self.__latch_tx()
-		if self.__fake_pwm:
-			GPIO.output(self.__pwm_pin, GPIO.HIGH)
+			self._latch_state &= ~self.__BV(self._a)
+			self._latch_state |= self.__BV(self._b)
+		self._latch_tx()
+		if self._fake_pwm:
+			GPIO.output(self._pwm_pin, GPIO.HIGH)
 		else:
-			self.__pwm.start(self.__speed)
-		self.__state = MotorState.Running
+			self._pwm.start(self._speed)
+		self._state = MotorState.Running
 
 	def getSpeed(self):
-		if self.__state:
+		if self._state:
 			return 0
 		else:
-			return self.__speed
+			return self._speed
 
 	def setSpeed(self, speed):
-		if self.__state:
+		if self._state:
 			print "Unable to set motor speed when it is stopped"
 			return
-		if self.__fake_pwm:
+		if self._fake_pwm:
 			print "Unable to change the motor speed with fake pwm signal"
 			return
 		if speed < 0:
-			self.__speed = 0
+			self._speed = 0
 		elif speed > 100:
-			self.__speed = 100
+			self._speed = 100
 		else:
-			self.__speed = speed
-		self.__pwm.ChangeDutyCycle(self.__speed)
+			self._speed = speed
+		self._pwm.ChangeDutyCycle(self._speed)
 
 	def gear(self, step = 0):
 		if (step == 0):
 			return
-		self.setSpeed(self.__speed + step)
+		self.setSpeed(self._speed + step)

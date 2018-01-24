@@ -92,19 +92,19 @@ public class MainActivity extends Activity implements View.OnTouchListener {
             vibe.vibrate(100);
             switch (view.getId()) {
                 case R.id.upBtn:
-                    btnUp.setBackgroundColor(Color.BLUE);
+                    btnUp.setBackgroundColor(Color.CYAN);
                     sendCommand("f");
                     break;
                 case R.id.downBtn:
-                    btnDown.setBackgroundColor(Color.BLUE);
+                    btnDown.setBackgroundColor(Color.CYAN);
                     sendCommand("b");
                     break;
                 case R.id.leftBtn:
-                    btnLeft.setBackgroundColor(Color.BLUE);
+                    btnLeft.setBackgroundColor(Color.CYAN);
                     startTimer("l");
                     break;
                 case R.id.rightBtn:
-                    btnRight.setBackgroundColor(Color.BLUE);
+                    btnRight.setBackgroundColor(Color.CYAN);
                     startTimer("r");
                     break;
             }

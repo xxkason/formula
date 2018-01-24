@@ -20,47 +20,50 @@ FAKE_PWM_4 = 38 # GPIO20
 class ToyCar(object):
     TURNING_TIME = 0.5
 
-    def __init__(self, wheel_motor_number, wheel_pwm_pin, 
+    def __init__(self, wheel_motor_number, wheel_pwm_pin, \
     driver_motor_num, driver_pwm_pin, default_wheel_speed = 60):
-        self.__wheel = Motor(wheel_motor_number, wheel_pwm_pin)
-        self.__drive_motor = Motor(driver_motor_num, driver_pwm_pin)
-        self.__wheel.setSpeed(default_wheel_speed)
+        # 转向电机
+        self._wheel = Motor(wheel_motor_number, wheel_pwm_pin)
+        # 驱动电机
+        self._drive_motor = Motor(driver_motor_num, driver_pwm_pin)
+        # 设置转向电机电压，通过PWM来改变驱动电压
+        self._wheel.setSpeed(default_wheel_speed)
 
     def __del__(self):
         self.stop()
 
     def currentSpeed(self):
-        return self.__drive_motor.getSpeed()
+        return self._drive_motor.getSpeed()
 
     def goForward(self):
-        self.__drive_motor.stop()
-        self.__drive_motor.run(Motor.FORWARD)
+        self._drive_motor.stop()
+        self._drive_motor.run(Motor.FORWARD)
 
     def goBackward(self):
-        self.__drive_motor.stop()
-        self.__drive_motor.run(Motor.BACKWARD)
+        self._drive_motor.stop()
+        self._drive_motor.run(Motor.BACKWARD)
 
     def stop(self):
-        self.__drive_motor.stop()
-        self.__wheel.stop()
+        self._drive_motor.stop()
+        self._wheel.stop()
 
     def changeSpeed(self, speed):
-        self.__drive_motor.setSpeed(speed)
+        self._drive_motor.setSpeed(speed)
 
     def gear(self, step):
-        self.__drive_motor.gear(step)
+        self._drive_motor.gear(step)
 
     def turnLeft(self):
-        self.__wheel.stop()
-        self.__wheel.run(Motor.BACKWARD)
+        self._wheel.stop()
+        self._wheel.run(Motor.BACKWARD)
         sleep(ToyCar.TURNING_TIME)
-        self.__wheel.stop()
+        self._wheel.stop()
 
     def turnRight(self):
-        self.__wheel.stop()
-        self.__wheel.run(Motor.FORWARD)
+        self._wheel.stop()
+        self._wheel.run(Motor.FORWARD)
         sleep(ToyCar.TURNING_TIME)
-        self.__wheel.stop()
+        self._wheel.stop()
 
 # RaceCar class
 # 1个舵机，5V输出，PWM控制转向角度
@@ -71,50 +74,51 @@ class RaceCar(object):
     lbm_num, lbm_pwm_pin,
     rfm_num, rfm_pwm_pin,
     rbm_num, rbm_pwm_pin,
-    lfm_fake_pwm = False, lbm_fake_pwm = False,
-    rfm_fake_pwm = False, rbm_fake_pwm = False):
-        self.__leftFront = Motor(lfm_num, lfm_pwm_pin, lfm_fake_pwm)
-        self.__leftBehind = Motor(lbm_num, lbm_pwm_pin, lbm_fake_pwm)
-        self.__rightFront = Motor(rfm_num, rfm_pwm_pin, rfm_fake_pwm)
-        self.__rightBehind = Motor(rbm_num, rbm_pwm_pin, rbm_fake_pwm)
+    lfm_fake_pwm = True, lbm_fake_pwm = True,
+    rfm_fake_pwm = True, rbm_fake_pwm = True):
+        self._leftFront = Motor(lfm_num, lfm_pwm_pin, lfm_fake_pwm)
+        self._leftBehind = Motor(lbm_num, lbm_pwm_pin, lbm_fake_pwm)
+        self._rightFront = Motor(rfm_num, rfm_pwm_pin, rfm_fake_pwm)
+        self._rightBehind = Motor(rbm_num, rbm_pwm_pin, rbm_fake_pwm)
         GPIO.setup(wheel_pwm_pin, GPIO.OUT)
-        self.__wheelPWM = GPIO.PWM(wheel_pwm_pin, 1000)
+        self._wheelPWM = GPIO.PWM(wheel_pwm_pin, 1000)
 
     def goForward(self):
-        self.__leftFront.stop()
-        self.__rightFront.stop()
-        self.__leftBehind.stop()
-        self.__rightBehind.stop()
-        self.__leftFront.run(Motor.FORWARD)
-        self.__rightFront.run(Motor.FORWARD)
-        self.__rightBehind.run(Motor.FORWARD)
-        self.__leftBehind.run(Motor.FORWARD)
+        self._leftFront.stop()
+        self._rightFront.stop()
+        self._leftBehind.stop()
+        self._rightBehind.stop()
+        self._leftFront.run(Motor.FORWARD)
+        self._rightFront.run(Motor.FORWARD)
+        self._rightBehind.run(Motor.FORWARD)
+        self._leftBehind.run(Motor.FORWARD)
 
     def goBackward(self):
-        self.__leftFront.stop()
-        self.__rightFront.stop()
-        self.__leftBehind.stop()
-        self.__rightBehind.stop()
-        self.__leftFront.run(Motor.BACKWARD)
-        self.__rightFront.run(Motor.BACKWARD)
-        self.__rightBehind.run(Motor.BACKWARD)
-        self.__leftBehind.run(Motor.BACKWARD)
+        self._leftFront.stop()
+        self._rightFront.stop()
+        self._leftBehind.stop()
+        self._rightBehind.stop()
+        self._leftFront.run(Motor.BACKWARD)
+        self._rightFront.run(Motor.BACKWARD)
+        self._rightBehind.run(Motor.BACKWARD)
+        self._leftBehind.run(Motor.BACKWARD)
 
     def stop(self):
-        self.__leftFront.stop()
-        self.__rightFront.stop()
-        self.__leftBehind.stop()
-        self.__rightBehind.stop()
-        self.__wheelPWM.stop()
+        self._leftFront.stop()
+        self._rightFront.stop()
+        self._leftBehind.stop()
+        self._rightBehind.stop()
+        self._wheelPWM.stop()
 
     def gear(self, speed):
         pass
 
     def wheelControl(self, angle):
-        self.__wheelPWM.start(angle)
+        self._wheelPWM.start(angle)
 
 def main():
-    car = ToyCar(1, WHEEL_PWM, 2, PWM_2)
+    toycar = ToyCar(1, WHEEL_PWM, 2, PWM_2)
+    # raceCar = RaceCar(WHEEL_PWM, 1, FAKE_PWM_1, 2, FAKE_PWM_2, 3, FAKE_PWM_3, 4, FAKE_PWM_4)
 
     server_socket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
     server_socket.bind(("", BT_SERVER_PORT))
@@ -129,33 +133,33 @@ def main():
             #print "Received command: %s" % cmd
             if cmd == 'f':
                 print "Yes, my lord. Go! Go! Go!"
-                car.goForward()
+                toycar.goForward()
             elif cmd == 'b':
                 print "Yes, my lord. Go backward"
-                car.goBackward()
+                toycar.goBackward()
             elif cmd == 'l':
                 print "Turning left"
-                car.turnLeft()
+                toycar.turnLeft()
             elif cmd == 'r':
                 print "Turning right"
-                car.turnRight()
+                toycar.turnRight()
             elif cmd == 's':
                 print "Stop now!"
-                car.stop()
+                toycar.stop()
             elif cmd == 'a':
                 print "Speed Up"
-                car.gear(5)
-                print "Current speed is ",car.currentSpeed()
+                toycar.gear(5)
+                print "Current speed is ",toycar.currentSpeed()
             elif cmd == 'd':
                 print "Slow down..."
-                car.gear(-5)
-                print "Current speed is ",car.currentSpeed()
+                toycar.gear(-5)
+                print "Current speed is ",toycar.currentSpeed()
             elif cmd == 'q':
                 print "Quit"
-                car.stop()
+                toycar.stop()
                 break
     except KeyboardInterrupt:
-        car.stop()
+        toycar.stop()
         GPIO.cleanup()
         client_socket.close()
         server_socket.close()
@@ -164,10 +168,6 @@ def main():
     GPIO.cleanup()
     client_socket.close()
     server_socket.close()
-
-# toyCar = ToyCar(1, WHEEL_PWM, 2, PWM_2)
-# raceCar = RaceCar(WHEEL_PWM, 1, FAKE_PWM_1, 2, FAKE_PWM_2, 
-#                   3, FAKE_PWM_3, 4, FAKE_PWM_4, True, True, True, True)
 
 if __name__ == "__main__":
     main()
