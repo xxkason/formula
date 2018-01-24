@@ -32,6 +32,28 @@ class MotorState(Enum):
   Stopped = 1
 
 class Motor(object):
+	def __init__(self, pwm_pin, pwm_enable = True, pwm_frequency = 1000):
+		self._pwm_pin = pwm_pin
+		self._pwm_en = pwm_pin
+		GPIO.setup(self._pwm_pin, GPIO.OUT)
+		if self._pwm_en:
+			self._pwm_frequency = pwm_frequency
+			self._pwm = GPIO.PWM(self._pwm_pin, self._pwm_frequency)
+			self._speed = 60
+
+	def __del__(self):
+		self.stop()
+
+	def stop(self):
+		raise NotImplementedError
+
+	def rotate(self, direction):
+		raise NotImplementedError
+
+	def setSpeed(self, speed):
+		raise NotImplementedError
+
+class L293D_Motor(Motor):
 	# DC or Step motor control pins
 	MOTOR_CLK = 7     # pi GPIO4 --> shield pin 4
 	MOTOR_ENABLE = 11 # pi GPIO17 --> shield pin 7
@@ -57,15 +79,10 @@ class Motor(object):
 	GPIO.setup(MOTOR_ENABLE, GPIO.OUT, initial = GPIO.LOW)
 	GPIO.setup(MOTOR_LATCH, GPIO.OUT)
 
-	def __init__(self, num, pwm_pin, fake_pwm = False, pwm_frequency  = 1000):
+	def __init__(self, num, pwm_pin, pwm_enable = True, pwm_frequency  = 1000):
+		super(L293D_Motor, self).__init__(pwm_pin, pwm_enable, pwm_frequency)
 		self._latch_state = 0
 		self._state = MotorState.Stopped
-		self._pwm_pin = pwm_pin
-		GPIO.setup(self._pwm_pin, GPIO.OUT)
-		self._fake_pwm = fake_pwm
-		if not self._fake_pwm:
-			self._pwm = GPIO.PWM(self._pwm_pin, pwm_frequency)
-			self._speed = 50
 		if num == 1:
 			self._a = Motor.MOTOR1_A
 			self._b = Motor.MOTOR1_B
@@ -83,9 +100,6 @@ class Motor(object):
 		self.number = num
 		self._latch_state &= ~self.__BV(self._a) & ~self.__BV(self._b)
 		self._latch_tx()
-
-	def __del__(self):
-		self.stop()
 
 	def __BV(self, bit):
 		return (1 << (bit))
@@ -108,10 +122,10 @@ class Motor(object):
 		self._latch_state &= ~self.__BV(self._a)
 		self._latch_state &= ~self.__BV(self._b)
 		self._latch_tx()
-		if self._fake_pwm:
-			GPIO.output(self._pwm_pin, GPIO.LOW)
-		else:
+		if self._pwm_en:
 			self._pwm.stop()
+		else:
+			GPIO.output(self._pwm_pin, GPIO.LOW)
 		self._state = MotorState.Stopped
 	
 	def run(self, direction):
@@ -136,7 +150,7 @@ class Motor(object):
 
 	def setSpeed(self, speed):
 		if self._fake_pwm:
-			print "Unable to change the motor speed with fake pwm signal."
+			print ("Unable to change the motor speed with fake pwm signal.")
 			return
 		if speed < 0:
 			self._speed = 0
@@ -150,3 +164,15 @@ class Motor(object):
 		if (step == 0):
 			return
 		self.setSpeed(self._speed + step)
+
+class L298N_Motor(object):
+	def __init__(self, in1_pin, in2_pin, enable_pin):
+		self._in1_pin = in1_pin
+		self._in2_pin = in2_pin
+		self._pwm_pin = enable_pin
+		GPIO.setup(self._in1_pin, GPIO.OUT, initial = GPIO.LOW)
+		GPIO.setup(self._in2_pin, GPIO.OUT, initial = GPIO.LOW)
+		GPIO.setup(self._pwm_pin, GPIO.OUT)
+		self._pwm = GPIO.PWM(self._pwm_pin, 1000)
+
+	def 
