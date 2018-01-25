@@ -1,181 +1,141 @@
 # encoding:utf8  
 
-import bluetooth
-from motor import Motor
 from time import sleep
 import RPi.GPIO as GPIO
+from enum import Enum, unique
 
-BT_SERVER_PORT = 1
-WHEEL_PWM = 16 # GPIO23
-PWM_2 = 18 # GPIO24
-FAKE_PWM_1 = 22 # GPIO25
-FAKE_PWM_2 = 32 # GPIO12
-FAKE_PWM_3 = 36 # GPIO16
-FAKE_PWM_4 = 38 # GPIO20
+GPIO.setmode(GPIO.BOARD)
 
-# ToyCar class
-# 两个直流电机
-# 一个当舵机，负责转向，但不能调节角度
-# 一个驱动电机
-class ToyCar(object):
-    TURNING_TIME = 0.5
+@unique
+class Run_Direction(Enum):
+  FORWARD = 0
+  BACKWARD = 1
 
-    def __init__(self, wheel_motor_number, wheel_pwm_pin, \
-    driver_motor_num, driver_pwm_pin, default_wheel_speed = 60):
-        # 转向电机
-        self._wheel = Motor(wheel_motor_number, wheel_pwm_pin)
-        # 驱动电机
-        self._drive_motor = Motor(driver_motor_num, driver_pwm_pin)
-        # 设置转向电机电压，通过PWM来改变驱动电压
-        self._wheel.setSpeed(default_wheel_speed)
+@unique
+class Turn_Direction(Enum):
+  LEFT = 0
+  RIGHT = 1
+
+class Car(object):
+    """
+    this is an absctract class for all types of cars
+    """
+
+    def stop(self):
+        raise NotImplementedError
+
+    def run(self, direction):
+        raise NotImplementedError
+
+    def turn(self, direction):
+        raise NotImplementedError
+
+    def changeSpeed(self, speed):
+        raise NotImplementedError
 
     def __del__(self):
         self.stop()
 
-    def currentSpeed(self):
-        return self._drive_motor.getSpeed()
+class Car_2DC(Car):
+    """
+    Car with 2 DC Motor, one for wheel, the other one for drive,
+    Use L293D/L298N motion board solution
+    
+    Use L293D solution, create instance with 4 parameters:
+    e.g. Car_2DC(wheel_motor_number, wheel_pwm_pin, drive_motor_number, drive_pwm_pin)
+    
+    use L298N solution, create instance with 6 parameters:
+    e.g. Car_2DC(in1_pin, in2_pin, pwm1_pin, in3_pin, in4_pin, pwm2_pin)
+    """
+    from motor import L293D_Motor, L298N_Motor, Direction
+    TURNING_TIME = 0.5
 
-    def goForward(self):
-        self._drive_motor.stop()
-        self._drive_motor.run(Motor.FORWARD)
-
-    def goBackward(self):
-        self._drive_motor.stop()
-        self._drive_motor.run(Motor.BACKWARD)
+    def __init__(self, *args):
+        if len(args) == 6:
+            self._wheel = self.L298N_Motor(args[1], args[2], args[3])
+            self._drive_motor = self.L298N_Motor(args[4],args[5], args[6])
+        elif len(args) == 4:
+            # create wheel motor
+            self._wheel = self.L293D_Motor(args[1], args[2])
+            # create drive motor
+            self._drive_motor = self.L293D_Motor(args[3], args[4])
+        else:
+            raise ValueError
+        # set pwm to limit the wheel motor voltage
+        self._wheel.setSpeed(60)
 
     def stop(self):
         self._drive_motor.stop()
+        self._wheel.stop()
+
+    def run(self, direction):
+        self._drive_motor.stop()
+        cmd = None
+        if direction == Run_Direction.FORWARD:
+            cmd = self.Direction.CLOCKWISE
+        elif direction == Run_Direction.BACKWARD:
+            cmd = self.Direction.COUNTERCLOCKWISE
+        self._drive_motor.rotate(cmd)
+
+    def turn(self, direction):
+        self._wheel.stop()
+        if direction == Turn_Direction.LEFT:
+            self._wheel.rotate(self.Direction.CLOCKWISE)
+        elif direction == Run_Direction.BACKWARD:
+            self._wheel.rotate(self.Direction.COUNTERCLOCKWISE)
+        sleep(Car_2DC.TURNING_TIME)
         self._wheel.stop()
 
     def changeSpeed(self, speed):
         self._drive_motor.setSpeed(speed)
 
+    def currentSpeed(self):
+        return self._drive_motor.currentSpeedValue()
+
     def gear(self, step):
         self._drive_motor.gear(step)
 
-    def turnLeft(self):
-        self._wheel.stop()
-        self._wheel.run(Motor.BACKWARD)
-        sleep(ToyCar.TURNING_TIME)
-        self._wheel.stop()
+class Car_4WD(Car):
+    """
+    Car with 1 servo motor for wheel, and 4 DC motor for drive
+    """
+    from motor import L293D_Motor, Direction
 
-    def turnRight(self):
-        self._wheel.stop()
-        self._wheel.run(Motor.FORWARD)
-        sleep(ToyCar.TURNING_TIME)
-        self._wheel.stop()
-
-# RaceCar class
-# 1个舵机，5V输出，PWM控制转向角度
-# 4个驱动电机，驱动不能调速，全速转动
-class RaceCar(object):
-    def __init__(self, wheel_pwm_pin, 
-    lfm_num, lfm_pwm_pin, 
-    lbm_num, lbm_pwm_pin,
-    rfm_num, rfm_pwm_pin,
-    rbm_num, rbm_pwm_pin,
-    lfm_fake_pwm = True, lbm_fake_pwm = True,
-    rfm_fake_pwm = True, rbm_fake_pwm = True):
-        self._leftFront = Motor(lfm_num, lfm_pwm_pin, lfm_fake_pwm)
-        self._leftBehind = Motor(lbm_num, lbm_pwm_pin, lbm_fake_pwm)
-        self._rightFront = Motor(rfm_num, rfm_pwm_pin, rfm_fake_pwm)
-        self._rightBehind = Motor(rbm_num, rbm_pwm_pin, rbm_fake_pwm)
+    def __init__(self, wheel_pwm_pin, lfm_num, lfm_pwm_pin, 
+    lbm_num, lbm_pwm_pin, rfm_num, rfm_pwm_pin, rbm_num, rbm_pwm_pin,
+    lfm_pwm_en = False, lbm_pwm_en = False,
+    rfm_pwm_en = False, rbm_pwm_en = False):
+        self._leftFront = self.L293D_Motor(lfm_num, lfm_pwm_pin, lfm_pwm_en)
+        self._leftBehind = self.L293D_Motor(lbm_num, lbm_pwm_pin, lbm_pwm_en)
+        self._rightFront = self.L293D_Motor(rfm_num, rfm_pwm_pin, rfm_pwm_en)
+        self._rightBehind = self.L293D_Motor(rbm_num, rbm_pwm_pin, rbm_pwm_en)
         GPIO.setup(wheel_pwm_pin, GPIO.OUT)
-        self._wheelPWM = GPIO.PWM(wheel_pwm_pin, 1000)
-
-    def goForward(self):
-        self._leftFront.stop()
-        self._rightFront.stop()
-        self._leftBehind.stop()
-        self._rightBehind.stop()
-        self._leftFront.run(Motor.FORWARD)
-        self._rightFront.run(Motor.FORWARD)
-        self._rightBehind.run(Motor.FORWARD)
-        self._leftBehind.run(Motor.FORWARD)
-
-    def goBackward(self):
-        self._leftFront.stop()
-        self._rightFront.stop()
-        self._leftBehind.stop()
-        self._rightBehind.stop()
-        self._leftFront.run(Motor.BACKWARD)
-        self._rightFront.run(Motor.BACKWARD)
-        self._rightBehind.run(Motor.BACKWARD)
-        self._leftBehind.run(Motor.BACKWARD)
+        self._wheel_pwm = GPIO.PWM(wheel_pwm_pin, 1000)
 
     def stop(self):
         self._leftFront.stop()
         self._rightFront.stop()
         self._leftBehind.stop()
         self._rightBehind.stop()
-        self._wheelPWM.stop()
+        self._wheel_pwm.stop()
 
-    def gear(self, speed):
+    def run(self, direction):
+        self._leftFront.stop()
+        self._rightFront.stop()
+        self._leftBehind.stop()
+        self._rightBehind.stop()
+        cmd = None
+        if direction == Run_Direction.FORWARD:
+            cmd = self.Direction.CLOCKWISE
+        elif direction == Run_Direction.BACKWARD:
+            cmd = self.Direction.COUNTERCLOCKWISE
+        self._leftFront.rotate(cmd)
+        self._rightFront.rotate(cmd)
+        self._rightBehind.rotate(cmd)
+        self._leftBehind.rotate(cmd)
+
+    def turn(self, angle):
+        self._wheel_pwm.start(angle)
+
+    def changeSpeed(self, speed):
         pass
-
-    def wheelControl(self, angle):
-        self._wheelPWM.start(angle)
-
-def main():
-    toycar = ToyCar(1, WHEEL_PWM, 2, PWM_2)
-    # raceCar = RaceCar(WHEEL_PWM, 1, FAKE_PWM_1, 2, FAKE_PWM_2, 3, FAKE_PWM_3, 4, FAKE_PWM_4)
-
-    server_socket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-    server_socket.bind(("", BT_SERVER_PORT))
-    server_socket.listen(1) # Server listens to accept 1 connection at a time
-
-    print "Waiting for a connection..."
-    client_socket, address = server_socket.accept()
-    print "Welcome ", address
-    try:
-        while True:
-            data = client_socket.recv(128)
-            #print "Received command: %s" % cmd
-            if data.startwith('s:'):
-                cmd = data[2:]
-                if cmd == 'f':
-                    print "Yes, my lord. Go! Go! Go!"
-                    toycar.goForward()
-                elif cmd == 'b':
-                    print "Yes, my lord. Go backward"
-                    toycar.goBackward()
-                elif cmd == 'l':
-                    print "Turning left"
-                    toycar.turnLeft()
-                elif cmd == 'r':
-                    print "Turning right"
-                    toycar.turnRight()
-                elif cmd == 's':
-                    print "Stop now!"
-                    toycar.stop()
-                elif cmd == 'a':
-                    print "Speed Up"
-                    toycar.gear(5)
-                    print "Current speed is ",toycar.currentSpeed()
-                elif cmd == 'd':
-                    print "Slow down..."
-                    toycar.gear(-5)
-                    print "Current speed is ",toycar.currentSpeed()
-                elif cmd == 'q':
-                    print "Quit"
-                    toycar.stop()
-                    break
-            elif data.startwith('i:'):
-                try:
-                    cmd = int(data[2:])
-                except:
-                    print "invalid command"
-                toycar.changeSpeed(cmd)
-    except KeyboardInterrupt:
-        toycar.stop()
-        GPIO.cleanup()
-        client_socket.close()
-        server_socket.close()
-        print("Exiting...")
-    
-    GPIO.cleanup()
-    client_socket.close()
-    server_socket.close()
-
-if __name__ == "__main__":
-    main()

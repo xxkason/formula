@@ -27,9 +27,9 @@ GPIO.setmode(GPIO.BOARD)
 # 	MOTOR34_1KHZ
 
 @unique
-class MotorState(Enum):
-  Running = 0
-  Stopped = 1
+class Direction(Enum):
+  CLOCKWISE = 0
+  COUNTERCLOCKWISE = 1
 
 class Motor(object):
 	def __init__(self, pwm_pin, pwm_enable = True, pwm_frequency = 1000):
@@ -51,7 +51,19 @@ class Motor(object):
 		raise NotImplementedError
 
 	def setSpeed(self, speed):
-		raise NotImplementedError
+		if not self._pwm_en:
+			print ("Unable to change the motor speed with pwm disabled.")
+			return
+		if speed < 0:
+			self._speed = 0
+		elif speed > 100:
+			self._speed = 100
+		else:
+			self._speed = speed
+		self._pwm.ChangeDutyCycle(self._speed)
+
+	def currentSpeedValue(self):
+		return self._speed
 
 class L293D_Motor(Motor):
 	# DC or Step motor control pins
@@ -70,10 +82,6 @@ class L293D_Motor(Motor):
 	MOTOR4_A = 0
 	MOTOR4_B = 6
 
-	# Command
-	FORWARD = 1
-	BACKWARD = 2
-
 	GPIO.setup(MOTOR_CLK, GPIO.OUT)
 	GPIO.setup(MOTOR_DATA, GPIO.OUT)
 	GPIO.setup(MOTOR_ENABLE, GPIO.OUT, initial = GPIO.LOW)
@@ -82,7 +90,6 @@ class L293D_Motor(Motor):
 	def __init__(self, num, pwm_pin, pwm_enable = True, pwm_frequency  = 1000):
 		super(L293D_Motor, self).__init__(pwm_pin, pwm_enable, pwm_frequency)
 		self._latch_state = 0
-		self._state = MotorState.Stopped
 		if num == 1:
 			self._a = Motor.MOTOR1_A
 			self._b = Motor.MOTOR1_B
@@ -126,53 +133,48 @@ class L293D_Motor(Motor):
 			self._pwm.stop()
 		else:
 			GPIO.output(self._pwm_pin, GPIO.LOW)
-		self._state = MotorState.Stopped
 	
-	def run(self, direction):
-		if direction == Motor.FORWARD:
+	def rotate(self, direction):
+		if direction == Direction.CLOCKWISE:
 			self._latch_state |= self.__BV(self._a)
 			self._latch_state &= ~self.__BV(self._b)
-		elif direction == Motor.BACKWARD:
+		elif direction == Direction.COUNTERCLOCKWISE:
 			self._latch_state &= ~self.__BV(self._a)
 			self._latch_state |= self.__BV(self._b)
 		self._latch_tx()
-		if self._fake_pwm:
-			GPIO.output(self._pwm_pin, GPIO.HIGH)
-		else:
+		if self._pwm_en:
 			self._pwm.start(self._speed)
-		self._state = MotorState.Running
-
-	def getSpeed(self):
-		if self._state:
-			return 0
 		else:
-			return self._speed
-
-	def setSpeed(self, speed):
-		if self._fake_pwm:
-			print ("Unable to change the motor speed with fake pwm signal.")
-			return
-		if speed < 0:
-			self._speed = 0
-		elif speed > 100:
-			self._speed = 100
-		else:
-			self._speed = speed
-		self._pwm.ChangeDutyCycle(self._speed)
+			GPIO.output(self._pwm_pin, GPIO.HIGH)	
 
 	def gear(self, step = 0):
 		if (step == 0):
 			return
 		self.setSpeed(self._speed + step)
 
-class L298N_Motor(object):
+class L298N_Motor(Motor):
 	def __init__(self, in1_pin, in2_pin, enable_pin):
+		super(L298N_Motor, self).__init__(enable_pin)
 		self._in1_pin = in1_pin
 		self._in2_pin = in2_pin
-		self._pwm_pin = enable_pin
 		GPIO.setup(self._in1_pin, GPIO.OUT, initial = GPIO.LOW)
 		GPIO.setup(self._in2_pin, GPIO.OUT, initial = GPIO.LOW)
-		GPIO.setup(self._pwm_pin, GPIO.OUT)
-		self._pwm = GPIO.PWM(self._pwm_pin, 1000)
 
-	def 
+	def stop(self):
+		GPIO.output(self._in1_pin, GPIO.LOW)
+		GPIO.output(self._in2_pin, GPIO.LOW)
+		self._pwm.stop()
+	
+	def rotate(self, direction):
+		if direction == Direction.CLOCKWISE:
+			GPIO.output(self._in1_pin, GPIO.HIGH)
+			GPIO.output(self._in2_pin, GPIO.LOW)
+		elif direction == Direction.COUNTERCLOCKWISE:
+			GPIO.output(self._in1_pin, GPIO.LOW)
+			GPIO.output(self._in2_pin, GPIO.HIGH)
+		self._pwm.start(self._speed)
+
+	def brake(self):
+		GPIO.output(self._in1_pin, GPIO.HIGH)
+		GPIO.output(self._in2_pin, GPIO.HIGH)
+		self._pwm.stop()
