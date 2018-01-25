@@ -62,6 +62,11 @@ class Motor(object):
 			self._speed = speed
 		self._pwm.ChangeDutyCycle(self._speed)
 
+	def gear(self, step = 0):
+		if (step == 0):
+			return
+		self.setSpeed(self._speed + step)
+
 	def currentSpeedValue(self):
 		return self._speed
 
@@ -147,11 +152,6 @@ class L293D_Motor(Motor):
 		else:
 			GPIO.output(self._pwm_pin, GPIO.HIGH)	
 
-	def gear(self, step = 0):
-		if (step == 0):
-			return
-		self.setSpeed(self._speed + step)
-
 class L298N_Motor(Motor):
 	def __init__(self, in1_pin, in2_pin, enable_pin):
 		super(L298N_Motor, self).__init__(enable_pin)
@@ -178,3 +178,59 @@ class L298N_Motor(Motor):
 		GPIO.output(self._in1_pin, GPIO.HIGH)
 		GPIO.output(self._in2_pin, GPIO.HIGH)
 		self._pwm.stop()
+
+class SimpleBoard_Motor(object):
+	def __init__(self, in1_pin, in2_pin, pwm_enable = True):
+		self._in1_pin = in1_pin
+		self._in2_pin = in2_pin
+		self._pwm_en = pwm_enable
+		GPIO.setup(self._in1_pin, GPIO.OUT, initial = GPIO.LOW)
+		GPIO.setup(self._in2_pin, GPIO.OUT, initial = GPIO.LOW)
+		if self._pwm_en:
+			self._pwm1 = GPIO.PWM(self._in1_pin, 1000)
+			self._pwm2 = GPIO.PWM(self._in2_pin, 1000)
+			self._speed = 60
+	
+	def stop(self):
+		GPIO.output(self._in1_pin, GPIO.LOW)
+		GPIO.output(self._in2_pin, GPIO.LOW)
+
+	def rotate(self, direction):
+		self.stop()
+		if direction == Direction.CLOCKWISE:
+			if self._pwm_en:
+				self._pwm1.start(self._speed)
+			else:
+				GPIO.output(self._in1_pin, GPIO.HIGH)
+			GPIO.output(self._in2_pin, GPIO.LOW)
+		elif direction == Direction.COUNTERCLOCKWISE:
+			GPIO.output(self._in1_pin, GPIO.LOW)
+			if self._pwm_en:
+				self._pwm2.start(self._speed)
+			else:
+				GPIO.output(self._in2_pin, GPIO.HIGH)
+
+	def brake(self):
+		GPIO.output(self._in1_pin, GPIO.HIGH)
+		GPIO.output(self._in2_pin, GPIO.HIGH)
+
+	def setSpeed(self, speed):
+		if not self._pwm_en:
+			print ("Unable to change the motor speed with pwm disabled.")
+			return
+		if speed < 0:
+			self._speed = 0
+		elif speed > 100:
+			self._speed = 100
+		else:
+			self._speed = speed
+		self._pwm1.ChangeDutyCycle(self._speed)
+		self._pwm2.ChangeDutyCycle(self._speed)
+
+	def gear(self, step = 0):
+		if (step == 0):
+			return
+		self.setSpeed(self._speed + step)
+
+	def currentSpeedValue(self):
+		return self._speed

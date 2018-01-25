@@ -39,15 +39,18 @@ class Car(object):
 class Car_2DC(Car):
     """
     Car with 2 DC Motor, one for wheel, the other one for drive,
-    Use L293D/L298N motion board solution
+    Use L293D/L298N/SimpleBoard motion board solution
     
     Use L293D solution, create instance with 4 parameters:
     e.g. Car_2DC(wheel_motor_number, wheel_pwm_pin, drive_motor_number, drive_pwm_pin)
     
     use L298N solution, create instance with 6 parameters:
     e.g. Car_2DC(in1_pin, in2_pin, pwm1_pin, in3_pin, in4_pin, pwm2_pin)
+
+    use Simple Board solution, create instance with 5 parameters:
+    e.g. Car_2DC(in1_pin, in2_pin, in3_pin, in4_pin, pwm_enable)
     """
-    from motor import L293D_Motor, L298N_Motor, Direction
+    from motor import L293D_Motor, L298N_Motor, SimpleBoard_Motor, Direction
     TURNING_TIME = 0.5
 
     def __init__(self, *args):
@@ -59,6 +62,9 @@ class Car_2DC(Car):
             self._wheel = self.L293D_Motor(args[1], args[2])
             # create drive motor
             self._drive_motor = self.L293D_Motor(args[3], args[4])
+        elif len(args) == 5:
+            self._wheel = self.SimpleBoard_Motor(args[1], args[2])
+            self._drive_motor = self.SimpleBoard_Motor(args[3], args[4], False)
         else:
             raise ValueError
         # set pwm to limit the wheel motor voltage
@@ -70,7 +76,6 @@ class Car_2DC(Car):
 
     def run(self, direction):
         self._drive_motor.stop()
-        cmd = None
         if direction == Run_Direction.FORWARD:
             cmd = self.Direction.CLOCKWISE
         elif direction == Run_Direction.BACKWARD:
@@ -124,7 +129,6 @@ class Car_4WD(Car):
         self._rightFront.stop()
         self._leftBehind.stop()
         self._rightBehind.stop()
-        cmd = None
         if direction == Run_Direction.FORWARD:
             cmd = self.Direction.CLOCKWISE
         elif direction == Run_Direction.BACKWARD:
