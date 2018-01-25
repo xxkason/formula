@@ -40,7 +40,7 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     TextView speedText;
     SeekBar speedBar;
     Timer timer = null;
-    Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+    Vibrator vibe;
 
     private BluetoothAdapter myBluetooth = null;
     private BluetoothSocket btSocket = null;
@@ -68,11 +68,13 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         speedText = this.findViewById(R.id.speedValue);
         speedBar = this.findViewById(R.id.speedBar);
         speedBar.setMax((SEEK_BAR_MAX - SEEK_BAR_MIN) / SEEK_BAR_STEP);
+        vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         btnUp.setOnTouchListener(this);
         btnDown.setOnTouchListener(this);
         btnLeft.setOnTouchListener(this);
         btnRight.setOnTouchListener(this);
+        speedText.setText(String.format("%d", speedBar.getProgress()));
         speedBar.setOnSeekBarChangeListener(new speedChangeListener());
     }
 
@@ -80,12 +82,10 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         public void onProgressChanged(SeekBar seekBar, int progress,
                                       boolean fromUser) {
             int speed = SEEK_BAR_MIN + (progress * SEEK_BAR_STEP);
-            speedText.setText(speed);
+            speedText.setText(String.format("%d", speed));
         }
 
-        public void onStartTrackingTouch(SeekBar seekBar) {
-
-        }
+        public void onStartTrackingTouch(SeekBar seekBar) {}
 
         public void onStopTrackingTouch(SeekBar seekBar) {
             sendCommand(String.format("i:%d", seekBar.getProgress()));
