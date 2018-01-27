@@ -1,5 +1,6 @@
 #include <AFMotor.h>
 #include <Servo.h>
+#include <SoftwareSerial.h>
 
 #define SERVO_PWM_PIN 9
 #define MAX_SPEED 255
@@ -9,6 +10,7 @@
 #define MIN_POSITION 0
 #define CENTER_POSITION 90
 
+SoftwareSerial mySerial(10, 11); // RX, TX
 Servo wheel;
 AF_DCMotor lfMotor(1);
 AF_DCMotor lbMotor(2);
@@ -30,43 +32,60 @@ void setup() {
   lbMotor.run(RELEASE);
   rfMotor.run(RELEASE);
   rbMotor.run(RELEASE);
-  Serial.begin(BAUD_RATE);
-  Serial.setTimeout(200);
+
+  // Open serial communications and wait for port to open:
+  Serial.begin(57600);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
+  Serial.println("Goodnight moon!");
+  mySerial.begin(BAUD_RATE);
 }
 
 void loop() {
-  if (Serial.available() > 0)
+  if (mySerial.available() > 0)
   {
-    data = Serial.readString();
-    int cmd;
+    data = mySerial.readString();
+    Serial.println(data);
+    
     if (data.startsWith("s:"))
     {
-      cmd = data.substring(2).toInt();
+      char cmd;
+      cmd = data.charAt(2);
       switch (cmd) {
         case 'f':
           goForward();
+          Serial.println("forward");
           break;
         case 'b':
-          goForward();
+          goBackward();
+          Serial.println("backward");
           break;
         case 'l':
           turn(5);
+          Serial.println("turn left");
           break;
         case 'r':
           turn(-5);
+          Serial.println("turn right");
           break;
         case 's':
           stop();
+          Serial.println("stop");
           break;
         case 'c':
           wheel.write(CENTER_POSITION);
+          Serial.println("centered");
           break;
       }
     }
     else if (data.startsWith("i:"))
     {
+      int cmd;
       cmd = data.substring(2).toInt();
       setSpeed(cmd);
+      Serial.print("Set speed to");
+      Serial.println(cmd);
     }
   }
 }

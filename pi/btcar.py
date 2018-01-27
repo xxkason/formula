@@ -11,7 +11,11 @@ FAKE_PWM_3 = 36 # GPIO16
 FAKE_PWM_4 = 38 # GPIO20
 
 def main():
-    btcar = Car_2DC(1, WHEEL_PWM, 2, PWM_2)
+    # L293D solution
+    #btcar = Car_2DC(1, WHEEL_PWM, 2, PWM_2)
+    # L298N solution
+    btcar = Car_2DC(32, 18, 37, 16, 12, 11)
+    # 4wd car demo
     #btcar = Car_4WD(WHEEL_PWM, 1, FAKE_PWM_1, 2, FAKE_PWM_2, 3, FAKE_PWM_3, 4, FAKE_PWM_4)
 
     server_socket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
@@ -25,7 +29,7 @@ def main():
         while True:
             data = client_socket.recv(128)
             print "Received command: %s" % data
-            if data.startwith('s:'):
+            if data.startswith('s:'):
                 cmd = data[2:]
                 if cmd == 'f':
                     print "Yes, my lord. Go! Go! Go!"
@@ -54,7 +58,7 @@ def main():
                     print "Quit"
                     btcar.stop()
                     break
-            elif data.startwith('i:'):
+            elif data.startswith('i:'):
                 try:
                     cmd = int(data[2:])
                 except:

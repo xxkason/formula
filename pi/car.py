@@ -55,16 +55,16 @@ class Car_2DC(Car):
 
     def __init__(self, *args):
         if len(args) == 6:
-            self._wheel = self.L298N_Motor(args[1], args[2], args[3])
-            self._drive_motor = self.L298N_Motor(args[4],args[5], args[6])
+            self._wheel = self.L298N_Motor(args[0], args[1], args[2])
+            self._drive_motor = self.L298N_Motor(args[3],args[4], args[5])
         elif len(args) == 4:
             # create wheel motor
-            self._wheel = self.L293D_Motor(args[1], args[2])
+            self._wheel = self.L293D_Motor(args[0], args[1])
             # create drive motor
-            self._drive_motor = self.L293D_Motor(args[3], args[4])
+            self._drive_motor = self.L293D_Motor(args[2], args[3])
         elif len(args) == 5:
-            self._wheel = self.SimpleBoard_Motor(args[1], args[2])
-            self._drive_motor = self.SimpleBoard_Motor(args[3], args[4], False)
+            self._wheel = self.SimpleBoard_Motor(args[0], args[1])
+            self._drive_motor = self.SimpleBoard_Motor(args[2], args[3], False)
         else:
             raise ValueError
         # set pwm to limit the wheel motor voltage
@@ -86,7 +86,7 @@ class Car_2DC(Car):
         self._wheel.stop()
         if direction == Turn_Direction.LEFT:
             self._wheel.rotate(self.Direction.CLOCKWISE)
-        elif direction == Run_Direction.BACKWARD:
+        elif direction == Turn_Direction.RIGHT:
             self._wheel.rotate(self.Direction.COUNTERCLOCKWISE)
         sleep(Car_2DC.TURNING_TIME)
         self._wheel.stop()
