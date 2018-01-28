@@ -27,54 +27,49 @@ def main():
     print "Welcome ", address
     try:
         while True:
-            data = client_socket.recv(128)
-            print "Received command: %s" % data
-            if data.startswith('s:'):
-                cmd = data[2:]
-                if cmd == 'f':
-                    print "Yes, my lord. Go! Go! Go!"
-                    btcar.run(Run_Direction.FORWARD)
-                elif cmd == 'b':
-                    print "Yes, my lord. Go backward"
-                    btcar.run(Run_Direction.BACKWARD)
-                elif cmd == 'l':
-                    print "Turning left"
-                    btcar.turn(Turn_Direction.LEFT)
-                elif cmd == 'r':
-                    print "Turning right"
-                    btcar.turn(Turn_Direction.RIGHT)
-                elif cmd == 's':
-                    print "Stop now!"
-                    btcar.stop()
-                elif cmd == 'a':
-                    print "Speed Up"
-                    btcar.gear(5)
-                    print "Current speed is %d" % btcar.currentSpeed()
-                elif cmd == 'd':
-                    print "Slow down..."
-                    btcar.gear(-5)
-                    print "Current speed is %d" % btcar.currentSpeed()
-                elif cmd == 'q':
-                    print "Quit"
-                    btcar.stop()
-                    break
-            elif data.startswith('i:'):
-                try:
-                    cmd = int(data[2:])
-                except:
-                    print "invalid command"
-                btcar.changeSpeed(cmd)
+            cmd = client_socket.recv(128)
+            print "Received command: %s" % cmd
+            if cmd == 'f':
+                print "Yes, my lord. Go! Go! Go!"
+                btcar.run(Run_Direction.FORWARD)
+            elif cmd == 'b':
+                print "Yes, my lord. Go backward"
+                btcar.run(Run_Direction.BACKWARD)
+            elif cmd == 'l':
+                print "Turning left"
+                btcar.turn(Turn_Direction.LEFT)
+            elif cmd == 'r':
+                print "Turning right"
+                btcar.turn(Turn_Direction.RIGHT)
+            elif cmd == 's':
+                print "Stop now!"
+                btcar.stop()
+            elif cmd == 'a':
+                print "Speed Up"
+                btcar.gear(5)
                 print "Current speed is %d" % btcar.currentSpeed()
-    except KeyboardInterrupt:
-        btcar.stop()
-        GPIO.cleanup()
-        client_socket.close()
-        server_socket.close()
-        print("Exiting...")
-    
+            elif cmd == 'd':
+                print "Slow down..."
+                btcar.gear(-5)
+                print "Current speed is %d" % btcar.currentSpeed()
+            elif cmd == 'q':
+                print "Quit"
+                btcar.stop()
+                break
+            else:
+                try:
+                    btcar.changeSpeed(int(cmd))
+                    print "Current speed is %d" % btcar.currentSpeed()
+                except:
+                    print "invalid command"      
+    except:
+        pass
+       
+    btcar.stop()
     GPIO.cleanup()
     client_socket.close()
     server_socket.close()
+    print("Exiting...")
 
 if __name__ == "__main__":
     main()

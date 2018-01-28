@@ -33,8 +33,9 @@ class Car(object):
     def changeSpeed(self, speed):
         raise NotImplementedError
 
-    def __del__(self):
+    def __del__(self):        
         self.stop()
+        
 
 class Car_2DC(Car):
     """

@@ -88,7 +88,7 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         public void onStartTrackingTouch(SeekBar seekBar) {}
 
         public void onStopTrackingTouch(SeekBar seekBar) {
-            sendCommand(String.format("i:%d", seekBar.getProgress()));
+            sendCommand(String.format("%d", seekBar.getProgress()));
         }
     }
 
@@ -100,19 +100,19 @@ public class MainActivity extends Activity implements View.OnTouchListener {
             switch (view.getId()) {
                 case R.id.upBtn:
                     btnUp.setBackgroundColor(Color.CYAN);
-                    sendCommand("s:f");
+                    sendCommand("f");
                     break;
                 case R.id.downBtn:
                     btnDown.setBackgroundColor(Color.CYAN);
-                    sendCommand("s:b");
+                    sendCommand("b");
                     break;
                 case R.id.leftBtn:
                     btnLeft.setBackgroundColor(Color.CYAN);
-                    startTimer("s:l");
+                    startTimer("l");
                     break;
                 case R.id.rightBtn:
                     btnRight.setBackgroundColor(Color.CYAN);
-                    startTimer("s:r");
+                    startTimer("r");
                     break;
             }
         }
@@ -121,21 +121,21 @@ public class MainActivity extends Activity implements View.OnTouchListener {
             switch (view.getId()) {
                 case R.id.upBtn:
                     btnUp.setBackgroundColor(Color.WHITE);
-                    sendCommand("s:s");
+                    sendCommand("s");
                     break;
                 case R.id.downBtn:
                     btnDown.setBackgroundColor(Color.WHITE);
-                    sendCommand("s:s");
+                    sendCommand("s");
                     break;
                 case R.id.leftBtn:
                     btnLeft.setBackgroundColor(Color.WHITE);
                     stopTimer();
-                    sendCommand("s:c");
+                    sendCommand("c");
                     break;
                 case R.id.rightBtn:
                     btnRight.setBackgroundColor(Color.WHITE);
                     stopTimer();
-                    sendCommand("s:c");
+                    sendCommand("c");
                     break;
             }
         }
