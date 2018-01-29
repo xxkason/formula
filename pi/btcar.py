@@ -58,8 +58,7 @@ def main():
                 break
             else:
                 try:
-                    btcar.changeSpeed(int(cmd))
-                    print "Current speed is %d" % btcar.currentSpeed()
+                    print "Current speed is %d" % btcar.changeSpeed(int(cmd))
                 except:
                     print "%s is an invalid command" % cmd
     except:

@@ -93,7 +93,7 @@ class Car_2DC(Car):
         self._wheel.stop()
 
     def changeSpeed(self, speed):
-        self._drive_motor.setSpeed(speed)
+        return self._drive_motor.setSpeed(speed)
 
     def currentSpeed(self):
         return self._drive_motor.currentSpeedValue()

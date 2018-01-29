@@ -226,6 +226,7 @@ class SimpleBoard_Motor(object):
 			self._speed = speed
 		self._pwm1.ChangeDutyCycle(self._speed)
 		self._pwm2.ChangeDutyCycle(self._speed)
+		return self._speed
 
 	def gear(self, step = 0):
 		if (step == 0):
