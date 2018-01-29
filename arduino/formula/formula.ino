@@ -1,14 +1,9 @@
 #include <AFMotor.h>
 #include <Servo.h>
 #include <SoftwareSerial.h>
+#include "Car.h"
 
-#define SERVO_PWM_PIN 9
-#define MAX_SPEED 255
-#define MIN_SPEED 50
-#define BAUD_RATE 9600
-#define MAX_POSITION 180
-#define MIN_POSITION 0
-#define CENTER_POSITION 90
+Car_2DC car(1,2);
 
 SoftwareSerial mySerial(10, 11); // RX, TX
 Servo wheel;
@@ -47,7 +42,7 @@ void loop() {
   {
     data = mySerial.readString();
     Serial.println(data);
-    
+
     if (data.startsWith("s:"))
     {
       char cmd;
