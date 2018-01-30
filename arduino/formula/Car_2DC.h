@@ -1,22 +1,12 @@
 #ifndef Car_2DC_H
 #define Car_2DC_H
 
-#include "Arduino.h"
+#include "Car.h"
 #include <AFMotor.h>
 
 #define WHEEL_MAX 160
-#define MAX_SPEED 255
-#define MIN_SPEED 0
 
-enum directions
-{
-  QIAN,
-  HOU,
-  ZUO,
-  YOU
-};
-
-class Car_2DC
+class Car_2DC : public Car
 {
   private:
     int speed;

@@ -1,13 +1,13 @@
 #include <SoftwareSerial.h>
 #include "Car_2DC.h"
+#include "Car_4WD.h"
 
-#define SERVO_PWM_PIN 9
 #define BAUD_RATE 9600
-#define MAX_POSITION 180
-#define MIN_POSITION 0
-#define CENTER_POSITION 90
 
+//Car *car;
 Car_2DC car(1,2);
+Car_4WD car2();
+//car = &car1;
 char cmd[3];
 int inputSize = 0;
 
@@ -132,21 +132,6 @@ void loop() {
 //  }
 //}
 //
-//void goForward()
-//{
-//  lfMotor.run(FORWARD);
-//  rfMotor.run(FORWARD);
-//  rbMotor.run(FORWARD);
-//  lbMotor.run(FORWARD);
-//}
-//
-//void goBackward()
-//{
-//  lfMotor.run(BACKWARD);
-//  rfMotor.run(BACKWARD);
-//  rbMotor.run(BACKWARD);
-//  lbMotor.run(BACKWARD);
-//}
 //
 //void gear(int step)
 //{
@@ -167,13 +152,6 @@ void loop() {
 //  setSpeed(speed);
 //}
 //
-//void stop()
-//{
-//  lfMotor.run(RELEASE);
-//  rfMotor.run(RELEASE);
-//  rbMotor.run(RELEASE);
-//  lbMotor.run(RELEASE);
-//}
 //
 //void turn(int step)
 //{
@@ -193,10 +171,3 @@ void loop() {
 //  wheel.write(wheelAngle);
 //}
 //
-//void setSpeed(int speed)
-//{
-//  lfMotor.setSpeed(speed);
-//  rfMotor.setSpeed(speed);
-//  rbMotor.setSpeed(speed);
-//  lbMotor.setSpeed(speed);
-//}

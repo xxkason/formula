@@ -8,7 +8,7 @@ Car_2DC::Car_2DC(int wheelNum, int driverNum): wheel(wheelNum), driver(driverNum
   driver.run(RELEASE);
 }
 
-Car_2DC::~Car_2DC(){}
+Car_2DC::~Car_2DC() {}
 
 void Car_2DC::stop()
 {

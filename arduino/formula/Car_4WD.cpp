@@ -1,25 +1,28 @@
 #include "Car_4WD.h"
 
-Car_4WD::Car_4WD(): lfDrive(1), l
+Car_4WD::Car_4WD(): lfDrive(1), lbDrive(2), rfDrive(3), rbDrive(4)
 {
   wheel.attach(SERVO_PWM_PIN);
- lfMotor.setSpeed(MAX_SPEED);
- lbMotor.setSpeed(MAX_SPEED);
- rfMotor.setSpeed(MAX_SPEED);
- rbMotor.setSpeed(MAX_SPEED);
- wheel.write(wheelAngle);
- lfMotor.run(RELEASE);
- lbMotor.run(RELEASE);
- rfMotor.run(RELEASE);
- rbMotor.run(RELEASE);
+  lfDrive.setSpeed(MAX_SPEED);
+  lbDrive.setSpeed(MAX_SPEED);
+  rfDrive.setSpeed(MAX_SPEED);
+  rbDrive.setSpeed(MAX_SPEED);
+  wheel.write(CENTER_POSITION);
+  lfDrive.run(RELEASE);
+  lbDrive.run(RELEASE);
+  rfDrive.run(RELEASE);
+  rbDrive.run(RELEASE);
 }
 
-Car_4WD::~Car_4WD(){}
+Car_4WD::~Car_4WD() {}
 
 void Car_4WD::stop()
 {
-  wheel.run(RELEASE);
-  driver.run(RELEASE);
+  wheel.write(CENTER_POSITION);
+  lfDrive.run(RELEASE);
+  lbDrive.run(RELEASE);
+  rfDrive.run(RELEASE);
+  rbDrive.run(RELEASE);
   Serial.println("stoped");
 }
 
@@ -27,12 +30,18 @@ void Car_4WD::run(directions dir)
 {
   if (dir == QIAN)
   {
-    driver.run(FORWARD);
+    lfDrive.run(FORWARD);
+    lbDrive.run(FORWARD);
+    rfDrive.run(FORWARD);
+    rbDrive.run(FORWARD);
     Serial.println("qian jin");
   }
   else if (dir == HOU)
   {
-    driver.run(BACKWARD);
+    lfDrive.run(BACKWARD);
+    lbDrive.run(BACKWARD);
+    rfDrive.run(BACKWARD);
+    rbDrive.run(BACKWARD);
     Serial.println("hou tui");
   }
 }
@@ -41,15 +50,19 @@ void Car_4WD::turn(directions dir)
 {
   if (dir == ZUO)
   {
-    wheel.run(FORWARD);
+    wheel.write(MAX_POSITION);
     Serial.println("zuo guai");
   }
   else if (dir == YOU)
   {
-    wheel.run(BACKWARD);
+    wheel.write(MIN_POSITION);
     Serial.println("you guai");
   }
 }
+
+void Car_4WD::uturn(directions dir){}
+
+void Car_4WD::shift(directions dir){}
 
 int Car_4WD::changeSpeed(int value)
 {
@@ -59,6 +72,9 @@ int Car_4WD::changeSpeed(int value)
     speed = 0;
   else
     speed = value;
-  driver.setSpeed(speed);
+  lfDrive.setSpeed(speed);
+  lbDrive.setSpeed(speed);
+  rfDrive.setSpeed(speed);
+  rbDrive.setSpeed(speed);
   return speed;
 }
