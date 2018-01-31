@@ -12,18 +12,43 @@ class Car_2DC : public Car
 {
   private:
     int speed;
+
+  protected:
     Motor *wheel;
     Motor *drive;
 
   public:
-    Car_2DC(int wheelNum, int driverNum);
-    Car_2DC(int wheelIn1Pin, int wheelIn2Pin, int wheelPWMPin, int driveIn1Pin, int driveIn2Pin, int drivePWMPin);
-    Car_2DC(int wheelIn1Pin, int wheelIn2Pin, int driveIn1Pin, int driveIn2Pin);
-    ~Car_2DC();
     void run(Direction dir);
     void turn(Direction dir);
     void stop();
     int changeSpeed(int speed);
+};
+
+class Car_2DC_L293D : public Car_2DC
+{
+  private:
+    L293D_Motor wheel293D;
+    L293D_Motor drive293D;
+  public:
+    Car_2DC_L293D(int wheelNum, int driverNum);
+};
+
+class Car_2DC_L298N : public Car_2DC
+{
+  private:
+    L298N_Motor wheel298N;
+    L298N_Motor drive298N;
+  public:
+    Car_2DC_L298N(int wheelIn1Pin, int wheelIn2Pin, int wheelPWMPin, int driveIn1Pin, int driveIn2Pin, int drivePWMPin);
+};
+
+class Car_2DC_L2HBd : public Car_2DC
+{
+  private:
+    L2HBd_Motor wheel2hbd;
+    L2HBd_Motor drive2hbd;
+  public:
+    Car_2DC_L2HBd(int wheelIn1Pin, int wheelIn2Pin, int driveIn1Pin, int driveIn2Pin);
 };
 
 #endif

@@ -1,13 +1,9 @@
 #include "Car_4WD.h"
 
-Car_4WD::Car_4WD(int lfNum, int lbNum, int rfNum, int rbNum, int wheelPin)
+Car_4WD::Car_4WD(int lfNum, int lbNum, int rfNum, int rbNum, int wheelPin):lf(lfNum),lb(lbNum),rf(rfNum),rb(rbNum)
 {
   wheel.attach(wheelPin);
   wheel.write(CENTER_POSITION);
-  L293D_Motor lf(lfNum);
-  L293D_Motor lb(lbNum);
-  L293D_Motor rf(rfNum);
-  L293D_Motor rb(rbNum);
   lfDrive = & lf;
   lbDrive = & lb;
   rfDrive = & rf;
@@ -23,7 +19,7 @@ void Car_4WD::stop()
   lbDrive->stop();
   rbDrive->stop();
   rfDrive->stop();
-  Serial.println("stoped");
+  //Serial.println("stoped");
 }
 
 void Car_4WD::run(Direction dir)

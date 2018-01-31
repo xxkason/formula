@@ -15,6 +15,10 @@ class Car_4WD : public Car
   private:
     int speed;
     Servo wheel;
+    L293D_Motor lf;
+    L293D_Motor lb;
+    L293D_Motor rf;
+    L293D_Motor rb;
     Motor *lfDrive;
     Motor *lbDrive;
     Motor *rfDrive;
