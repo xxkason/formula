@@ -54,6 +54,7 @@ void loop()
         Serial.println("Turn Right");
         break;
       case 's':
+      case 'E':
         btcar->stop();
         Serial.println("STOPPED");
         break;
