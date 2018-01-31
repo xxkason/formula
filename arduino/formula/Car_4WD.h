@@ -2,7 +2,7 @@
 #define Car_4WD_H
 
 #include "Car.h"
-#include <AFMotor.h>
+#include "L293D_Motor.h"
 #include <Servo.h>
 
 #define SERVO_PWM_PIN 9
@@ -15,18 +15,18 @@ class Car_4WD : public Car
   private:
     int speed;
     Servo wheel;
-    AF_DCMotor lfDrive;
-    AF_DCMotor lbDrive;
-    AF_DCMotor rfDrive;
-    AF_DCMotor rbDrive;
+    Motor *lfDrive;
+    Motor *lbDrive;
+    Motor *rfDrive;
+    Motor *rbDrive;
 
   public:
-    Car_4WD();
+    Car_4WD(int lfNum = 1, int lbNum = 2, int rfNum = 3, int rbNum = 4, int wheelPin = SERVO_PWM_PIN);
     ~Car_4WD();
-    void run(directions dir);
-    void turn(directions dir);
-    void uturn(directions dir);
-    void shift(directions dir);
+    void run(Direction dir);
+    void turn(Direction dir);
+    void uturn(Direction dir);
+    void shift(Direction dir);
     void stop();
     int changeSpeed(int speed);
 };

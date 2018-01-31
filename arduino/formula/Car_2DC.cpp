@@ -1,59 +1,53 @@
 #include "Car_2DC.h"
 
-Car_2DC::Car_2DC(int wheelNum, int driverNum): wheel(wheelNum), driver(driverNum)
+Car_2DC::Car_2DC(int wheelNum, int driverNum)
 {
-  wheel.setSpeed(WHEEL_MAX);
-  driver.setSpeed(MAX_SPEED);
-  wheel.run(RELEASE);
-  driver.run(RELEASE);
+  L293D_Motor wheel293D(wheelNum);
+  L293D_Motor drive293D(driverNum);
+  wheel293D.setSpeed(WHEEL_MAX);
+  wheel = & wheel293D;
+  drive = & drive293D;
+}
+
+Car_2DC::Car_2DC(int wheelIn1Pin, int wheelIn2Pin, int wheelPWMPin, int driveIn1Pin, int driveIn2Pin, int drivePWMPin)
+{
+  L298N_Motor wheel298N(wheelIn1Pin, wheelIn2Pin, wheelPWMPin);
+  L298N_Motor drive298N(driveIn1Pin, driveIn2Pin, drivePWMPin);
+  wheel298N.setSpeed(WHEEL_MAX);
+  wheel = & wheel298N;
+  drive = & drive298N;
+}
+
+Car_2DC::Car_2DC(int wheelIn1Pin, int wheelIn2Pin, int driveIn1Pin, int driveIn2Pin)
+{
+  L2HBd_Motor wheel2hbd(wheelIn1Pin, wheelIn2Pin);
+  L2HBd_Motor drive2hbd(driveIn1Pin, driveIn2Pin);
+  wheel2hbd.setSpeed(WHEEL_MAX);
+  wheel = & wheel2hbd;
+  drive = & drive2hbd;
 }
 
 Car_2DC::~Car_2DC() {}
 
 void Car_2DC::stop()
 {
-  wheel.run(RELEASE);
-  driver.run(RELEASE);
+  wheel->stop();
+  drive->stop();
   Serial.println("stoped");
 }
 
-void Car_2DC::run(directions dir)
+void Car_2DC::run(Direction dir)
 {
-  if (dir == QIAN)
-  {
-    driver.run(FORWARD);
-    Serial.println("qian jin");
-  }
-  else if (dir == HOU)
-  {
-    driver.run(BACKWARD);
-    Serial.println("hou tui");
-  }
+  drive->run(dir);
 }
 
-void Car_2DC::turn(directions dir)
+void Car_2DC::turn(Direction dir)
 {
-  if (dir == ZUO)
-  {
-    wheel.run(FORWARD);
-    Serial.println("zuo guai");
-  }
-  else if (dir == YOU)
-  {
-    wheel.run(BACKWARD);
-    Serial.println("you guai");
-  }
+  wheel->run(dir);
 }
 
 int Car_2DC::changeSpeed(int value)
 {
-  if (value > 255)
-    speed = 255;
-  else if (value < 0)
-    speed = 0;
-  else
-    speed = value;
-  driver.setSpeed(speed);
-  return speed;
+  return drive->setSpeed(value);
 }
 

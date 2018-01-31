@@ -6,16 +6,16 @@
 
 class L293D_Motor : public Motor
 {
-    private:
+  private:
     int speed;
     AF_DCMotor motor;
 
-    public:
+  public:
     L293D_Motor(int motorNum);
     ~L293D_Motor();
-    void stop() = 0;
-    void run(Direction dir) = 0;
-    int setSpeed(int speed) = 0;
-}
+    void stop();
+    void run(Direction dir);
+    int setSpeed(int speed);
+};
 
 #endif

@@ -8,16 +8,16 @@
 
 enum Direction
 {
-    FOR = 1
-    BACK = 2
-}
+  FOR = 1,
+  BACK = 2
+};
 
 class Motor
 {
-    public:
+  public:
     virtual void stop() = 0;
     virtual void run(Direction dir) = 0;
     virtual int setSpeed(int speed) = 0;
-}
+};
 
 #endif

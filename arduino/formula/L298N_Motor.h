@@ -5,15 +5,15 @@
 
 class L298N_Motor : public Motor
 {
-    private:
+  private:
     int in1, in2, pwm, speed;
 
-    public:
+  public:
     L298N_Motor(int in1Pin, int in2Pin, int pwmPin);
     ~L298N_Motor();
-    void stop() = 0;
-    void run(Direction dir) = 0;
-    int setSpeed(int speed) = 0;
-}
+    void stop();
+    void run(Direction dir);
+    int setSpeed(int speed);
+};
 
 #endif
