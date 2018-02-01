@@ -1,5 +1,7 @@
 #include "Car_2DC.h"
 
+const long TURNING_TIME = 50;
+
 void Car_2DC::stop()
 {
   wheel->stop();
@@ -14,6 +16,8 @@ void Car_2DC::run(Direction dir)
 void Car_2DC::turn(Direction dir)
 {
   wheel->run(dir);
+  delay(TURNING_TIME);
+  wheel->stop();
 }
 
 int Car_2DC::changeSpeed(int value)
