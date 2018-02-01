@@ -22,7 +22,7 @@ void setup()
   // Serial.println("Hello, monitor");
 
   btcar = & car293d;
-  Serial.setTimeout(1000);
+  Serial.setTimeout(300);
 }
 
 void loop()
