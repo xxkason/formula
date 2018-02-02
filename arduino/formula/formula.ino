@@ -1,16 +1,15 @@
 //#include <SoftwareSerial.h>
-#include "Car_2DC.h"
+//#include "Car_2DC.h"
 #include "Car_4WD.h"
 
 #define HARD_BAUD_RATE 115200
-//#define SOFT_BAUD_RATE 115200
 
 //SoftwareSerial softSerial(10, 11); // RX, TX
 Car *btcar;
-Car_2DC_L293D car293d(1, 2);
+// Car_2DC_L293D car293d(1, 2);
 // Car_2DC_L298N car298n(2, 4, 6, 7, 8, 9);
 // Car_2DC_L2HBd car2hbd(3, 5, 6, 9);
-Car_4WD car4wd(1, 2, 3, 4, 9);
+Car_4WD car4wd(1, 2, 3, 4, 10);
 
 void setup()
 {
@@ -20,8 +19,8 @@ void setup()
   // }
   // softSerial.begin(SOFT_BAUD_RATE);
   // Serial.println("Hello, monitor");
-
-  btcar = &car293d;
+  car4wd.attachWheel();
+  btcar = &car4wd;
   Serial.setTimeout(300);
 }
 
@@ -38,13 +37,6 @@ void msgHandler()
   {
     switch (msg[0])
     {
-      case 'G':
-        // switch car type
-        if (typeid(*btcar) == typeid(car293d))
-          btcar = &car4wd;
-        else if (typeid(*btcar) == typeid(car4wd))
-          btcar == &car293d;
-        break;
       case 'f':
       case 'A':
         btcar->run(FOR);
@@ -57,12 +49,12 @@ void msgHandler()
         break;
       case 'l':
       case 'C':
-        btcar->turn(FOR);
+        btcar->turn(BACK);
         //Serial.println("Turn Left");
         break;
       case 'r':
       case 'D':
-        btcar->turn(BACK);
+        btcar->turn(FOR);
         //Serial.println("Turn Right");
         break;
       case 'H':
