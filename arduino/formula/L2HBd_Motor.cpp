@@ -7,6 +7,8 @@ L2HBd_Motor::L2HBd_Motor(int in1Pin, int in2Pin)
     speed = MAX_SPEED;
     pinMode(in1, OUTPUT);
     pinMode(in2, OUTPUT);
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, LOW);
 }
 
 L2HBd_Motor::~L2HBd_Motor(){}

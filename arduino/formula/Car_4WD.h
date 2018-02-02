@@ -6,8 +6,8 @@
 #include <Servo.h>
 
 #define SERVO_PWM_PIN 9
-#define MAX_POSITION 180
-#define MIN_POSITION 0
+#define RIGHT_POSITION 180
+#define LEFT_POSITION 0
 #define CENTER_POSITION 90
 
 class Car_4WD : public Car

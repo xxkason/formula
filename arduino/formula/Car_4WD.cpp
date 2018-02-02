@@ -19,7 +19,6 @@ void Car_4WD::stop()
   lbDrive->stop();
   rbDrive->stop();
   rfDrive->stop();
-  //Serial.println("stoped");
 }
 
 void Car_4WD::run(Direction dir)
@@ -34,12 +33,12 @@ void Car_4WD::turn(Direction dir)
 {
   if (dir == FOR)
   {
-    wheel.write(MAX_POSITION);
+    wheel.write(RIGHT_POSITION);
     Serial.println("wheel servo turn left");
   }
   else if (dir == BACK)
   {
-    wheel.write(MIN_POSITION);
+    wheel.write(LEFT_POSITION);
     Serial.println("wheel servo turn right");
   }
 }
