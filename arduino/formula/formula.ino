@@ -1,8 +1,18 @@
 //#include <SoftwareSerial.h>
 //#include "Car_2DC.h"
+// Gamepad msg info
+/*   Left           Right
+      A               I
+    C   D   G   H   K   L
+      B               J
+
+      E               M
+      F               N
+*/
 #include "Car_4WD.h"
 
-#define HARD_BAUD_RATE 115200
+#define GAMEPAD_BAUD_RATE 115200
+#define BLUETOOTH_BAUD_RATE 9600
 
 //SoftwareSerial softSerial(10, 11); // RX, TX
 Car *btcar;
@@ -13,7 +23,7 @@ Car_4WD car4wd(1, 2, 3, 4, 10);
 
 void setup()
 {
-  Serial.begin(HARD_BAUD_RATE);
+  Serial.begin(GAMEPAD_BAUD_RATE);
   // while (!Serial) {
   //  ; // wait for serial port to connect. Needed for native USB port only
   // }
@@ -21,7 +31,7 @@ void setup()
   // Serial.println("Hello, monitor");
   car4wd.attachWheel();
   btcar = &car4wd;
-  Serial.setTimeout(300);
+  //Serial.setTimeout(300);
 }
 
 void loop()
@@ -57,18 +67,31 @@ void msgHandler()
         btcar->turn(FOR);
         //Serial.println("Turn Right");
         break;
-      case 'H':
-        // enter autocruise mode
-        break;
       case 's':
       case 'E':
         btcar->stop();
         //Serial.println("STOPPED");
         break;
+      case 'F':
+      case 'G':
+      case 'H':
+      case 'I':
+      case 'J':
+        break;
+      case 'K':
+        car4wd.uturn(BACK);
+        break;
+      case 'L':
+        car4wd.uturn(FOR);
+        break;
+      case 'M':
+      case 'N':
+        // enter autocruise mode
+        break;
     }
   }
-  else
-  {
-    btcar->stop();
-  }
+//  else
+//  {
+//    btcar->stop();
+//  }
 }

@@ -50,7 +50,25 @@ void Car_4WD::turn(Direction dir)
   }
 }
 
-void Car_4WD::uturn(Direction dir){}
+void Car_4WD::uturn(Direction dir)
+{
+  if (dir == FOR)
+  {
+    lf.run(FORWARD);
+    lb.run(FORWARD);
+    rf.run(BACKWARD);
+    rb.run(BACKWARD);
+    wheel.write(RIGHT_POSITION);
+  }
+  else if (dir = BACK)
+  {
+    rf.run(FORWARD);
+    rb.run(FORWARD);
+    lf.run(BACKWARD);
+    lb.run(BACKWARD);
+    wheel.write(LEFT_POSITION);
+  }
+}
 
 void Car_4WD::shift(Direction dir){}
 
