@@ -31,7 +31,7 @@ void setup()
   // Serial.println("Hello, monitor");
   car4wd.attachWheel();
   btcar = &car4wd;
-  //Serial.setTimeout(300);
+  Serial.setTimeout(300);
 }
 
 void loop()
@@ -90,8 +90,41 @@ void msgHandler()
         break;
     }
   }
-//  else
-//  {
-//    btcar->stop();
-//  }
+  else
+  {
+    btcar->stop();
+  }
 }
+
+void processMessage()
+{
+  char cmd[1];
+  if (Serial.readBytes(cmd, 1))
+  {
+    switch(cmd[0])
+    {
+      case 'W':
+        long speed;
+        speed = Serial.parseInt();
+        if (speed > 127)
+        {
+          btcar->changeSpeed(2 * speed); //127 is the center position value, min value is 0, max value is 255, 128 = 255 -127, full is speed/(255-127)*255
+          btcar->run(FOR);
+        }
+        else if (speed < 127)
+        {
+          btcar->changeSpeed(255 - 2 * speed); //127 is the center position value, min value is 0, max value is 255, 128 = 255 -127, full is (127-speed)/(127-0)*255
+          btcar->run(BACK);
+        }
+        else if (speed ==127)
+          btcar->stop();
+        break;
+      case 'P':
+        long angle;
+        angle = Serial.parseInt();
+        // angle / 256 * 180
+        break;
+    }
+  }
+}
+

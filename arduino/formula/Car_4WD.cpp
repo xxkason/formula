@@ -54,19 +54,19 @@ void Car_4WD::uturn(Direction dir)
 {
   if (dir == FOR)
   {
-    lf.run(FORWARD);
-    lb.run(FORWARD);
-    rf.run(BACKWARD);
-    rb.run(BACKWARD);
     wheel.write(RIGHT_POSITION);
+    lf.run(FOR);
+    lb.run(FOR);
+    rf.stop();
+    rb.stop();
   }
   else if (dir = BACK)
   {
-    rf.run(FORWARD);
-    rb.run(FORWARD);
-    lf.run(BACKWARD);
-    lb.run(BACKWARD);
     wheel.write(LEFT_POSITION);
+    rf.run(BACK);
+    rb.run(BACK);
+    lf.stop();
+    lb.stop();
   }
 }
 

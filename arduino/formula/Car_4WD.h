@@ -8,7 +8,7 @@
 #define SERVO_PWM_PIN 10
 #define RIGHT_POSITION 180
 #define LEFT_POSITION 0
-#define CENTER_POSITION 55
+#define CENTER_POSITION 90
 
 class Car_4WD : public Car
 {
