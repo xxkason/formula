@@ -122,7 +122,7 @@ void processMessage()
       case 'P':
         long angle;
         angle = Serial.parseInt();
-        // angle / 256 * 180
+        car4wd.analog_turn(angle / 256 + 180);
         break;
     }
   }

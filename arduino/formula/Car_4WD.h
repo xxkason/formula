@@ -28,6 +28,7 @@ class Car_4WD : public Car
     void run(Direction dir);
     void turn(Direction dir);
     void uturn(Direction dir);
+    void analog_turn(int angle);
     void shift(Direction dir);
     void stop();
     int changeSpeed(int speed);

@@ -70,6 +70,11 @@ void Car_4WD::uturn(Direction dir)
   }
 }
 
+void Car_4WD::analog_turn(int angle)
+{
+  wheel.write(angle);
+}
+
 void Car_4WD::shift(Direction dir){}
 
 int Car_4WD::changeSpeed(int value)
