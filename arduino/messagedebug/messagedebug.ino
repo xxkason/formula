@@ -1,7 +1,7 @@
 #include <SoftwareSerial.h>
 
-#define GAMEPAD_BAUD_RATE 115200
-#define BLUETOOTH_BAUD_RATE 9600
+#define GAMEPAD_BAUD_RATE 9600
+#define BLUETOOTH_BAUD_RATE 115200
 
 SoftwareSerial softSerial(10, 11); // RX, TX
 bool autoMode = false;
@@ -16,7 +16,7 @@ void setup() {
 }
 
 void loop() {
-  processMessage()
+  processMessage();
 }
 
 void processMessage()
@@ -71,19 +71,24 @@ void processMessage()
         
         if (speed > 127)
         {
-          Serial.println("go forward with speed %d", speed);
+          Serial.print("go forward with speed: ");
+          Serial.println(speed);
         }
         else if (speed < 127)
         {
-          Serial.println("go backward with speed %d", speed);
+          Serial.print("go backward with speed: ");
+          Serial.println(speed);
         }
         else if (speed ==127)
-          Serial.println("got %d, stoped", speed);
+          Serial.print("got speed value: ");
+          Serial.print(speed);
+          Serial.println(";, stoped");
         break;
       case 'P':
         long angle;
         angle = softSerial.parseInt();
-        Serial.println("Turn to angle %d", angle);
+        Serial.print("Turn to angle: ");
+        Serial.println(angle);
         break;
     }
   }

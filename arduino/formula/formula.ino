@@ -11,7 +11,7 @@
 */
 #include "Car_4WD.h"
 
-#define GAMEPAD_BAUD_RATE 115200
+#define GAMEPAD_BAUD_RATE 9600
 #define BLUETOOTH_BAUD_RATE 9600
 
 //SoftwareSerial softSerial(10, 11); // RX, TX
@@ -36,16 +36,16 @@ void setup()
 
 void loop()
 {
-  msgHandler();
+  processMessage();
 }
 
-void msgHandler()
+void processMessage()
 {
-  char msg[32];
-
-  if (Serial.readBytes(msg, 1) > 0)
+  char cmd[1];
+  if (Serial.readBytes(cmd, 1))
   {
-    switch (msg[0])
+    //Serial.println(cmd);
+    switch(cmd[0])
     {
       case 'f':
       case 'A':
@@ -77,16 +77,51 @@ void msgHandler()
       case 'H':
       case 'I':
       case 'J':
+        //Serial.println("Unkown command");
         break;
       case 'K':
         car4wd.uturn(BACK);
+        //Serial.println("U-Turn Left");
         break;
       case 'L':
         car4wd.uturn(FOR);
+        //Serial.println("U-Turn Right");
         break;
       case 'M':
       case 'N':
-        // enter autocruise mode
+        //Serial.println("Reserved command for auto mode switch");
+        //autoMode = !autoMode;
+        break;
+      case 'W':
+        long speed;
+        speed = Serial.parseInt();
+        
+        if (speed < 127)
+        {
+          btcar->changeSpeed(255 - 2 * speed); //127 is the center position value, min value is 0, max value is 255, 128 = 255 -127, full is (127-speed)/(127-0)*255
+          btcar->run(FOR);
+        }
+        else if (speed > 127)
+        {
+          btcar->changeSpeed(2 * speed); //127 is the center position value, min value is 0, max value is 255, 128 = 255 -127, full is speed/(255-127)*255
+          btcar->run(BACK);
+          // Serial.print("go backward with speed: ");
+          // Serial.println(speed);
+        }
+        else if (speed ==127)
+        {
+          btcar->stop();
+          // Serial.print("got speed value: ");
+          // Serial.print(speed);
+          // Serial.println(";, stoped");
+        }
+        break;
+      case 'P':
+        long angle;
+        angle = Serial.parseInt();
+        car4wd.analog_turn(angle * 180 / 256);
+        // Serial.print("Turn to angle: ");
+        // Serial.println(angle);
         break;
     }
   }
@@ -95,36 +130,3 @@ void msgHandler()
     btcar->stop();
   }
 }
-
-void processMessage()
-{
-  char cmd[1];
-  if (Serial.readBytes(cmd, 1))
-  {
-    switch(cmd[0])
-    {
-      case 'W':
-        long speed;
-        speed = Serial.parseInt();
-        if (speed > 127)
-        {
-          btcar->changeSpeed(2 * speed); //127 is the center position value, min value is 0, max value is 255, 128 = 255 -127, full is speed/(255-127)*255
-          btcar->run(FOR);
-        }
-        else if (speed < 127)
-        {
-          btcar->changeSpeed(255 - 2 * speed); //127 is the center position value, min value is 0, max value is 255, 128 = 255 -127, full is (127-speed)/(127-0)*255
-          btcar->run(BACK);
-        }
-        else if (speed ==127)
-          btcar->stop();
-        break;
-      case 'P':
-        long angle;
-        angle = Serial.parseInt();
-        car4wd.analog_turn(angle / 256 + 180);
-        break;
-    }
-  }
-}
-
