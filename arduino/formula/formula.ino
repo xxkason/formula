@@ -20,6 +20,7 @@ Car *btcar;
 // Car_2DC_L298N car298n(2, 4, 6, 7, 8, 9);
 // Car_2DC_L2HBd car2hbd(3, 5, 6, 9);
 Car_4WD car4wd(1, 2, 3, 4, 10);
+bool autoMode = false;
 
 void setup()
 {
@@ -96,14 +97,26 @@ void processMessage()
         long speed;
         speed = Serial.parseInt();
         
+        /*
+        127 is the center position value, 
+        top position is min value = 0, 
+        bottom position is max value = 255,
+        easy way: <127 go forward, =127 stop, >127 go backward
+        analog speed change: 
+        0: go forward with full speed
+        127: speed is 0
+        255: go backward with full speed
+        go forward speed formula: (127-speed)/(127-0)*255
+        go backward speed formula: speed/(255-127)*255
+        */
         if (speed < 127)
         {
-          btcar->changeSpeed(255 - 2 * speed); //127 is the center position value, min value is 0, max value is 255, 128 = 255 -127, full is (127-speed)/(127-0)*255
+          //btcar->changeSpeed(255 - 2 * speed); 
           btcar->run(FOR);
         }
         else if (speed > 127)
         {
-          btcar->changeSpeed(2 * speed); //127 is the center position value, min value is 0, max value is 255, 128 = 255 -127, full is speed/(255-127)*255
+          //btcar->changeSpeed(2 * speed);
           btcar->run(BACK);
           // Serial.print("go backward with speed: ");
           // Serial.println(speed);
@@ -119,7 +132,41 @@ void processMessage()
       case 'P':
         long angle;
         angle = Serial.parseInt();
+
+        /*
+        128 is the center position value, 
+        left position is min value = 0, 
+        right position is max value = 255,
+        analog speed change: 
+        0: map to servo 0
+        128: map to servo 90
+        255: map to servo 180
+        */
         car4wd.analog_turn(angle * 180 / 256);
+        // Serial.print("Turn to angle: ");
+        // Serial.println(angle);
+        break;
+      case 'S':
+        long value;
+        value = Serial.parseInt();
+
+        /*
+        128 is the center position value, 
+        left position is min value = 0, 
+        right position is max value = 255,
+        analog speed change: 
+        0: map to servo 0
+        128: map to servo 90
+        255: map to servo 180
+        */
+        if (value == 0)
+        {
+          car4wd.uturn(BACK); // uturn left
+        }
+        else if (value == 255)
+        {
+          car4wd.uturn(FOR); // uturn right
+        }
         // Serial.print("Turn to angle: ");
         // Serial.println(angle);
         break;

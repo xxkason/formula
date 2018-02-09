@@ -9,18 +9,26 @@ L2HBd_Motor::L2HBd_Motor(int in1Pin, int in2Pin)
     pinMode(in2, OUTPUT);
     digitalWrite(in1, LOW);
     digitalWrite(in2, LOW);
+    motor_state = STOP;
 }
 
 L2HBd_Motor::~L2HBd_Motor(){}
 
 void L2HBd_Motor::stop()
 {
-    digitalWrite(in1, LOW);
-    digitalWrite(in2, LOW);
+    if (motor_state != STOP)
+    {
+        digitalWrite(in1, LOW);
+        digitalWrite(in2, LOW);
+        motor_state = STOP;
+    }   
 }
 
-void L2HBd_Motor::run(Direction dir)
+void L2HBd_Motor::run(State dir)
 {
+    if (motor_state == dir)
+        return;
+    
     if (dir == FOR)
     {
         analogWrite(in1, speed);
@@ -31,6 +39,7 @@ void L2HBd_Motor::run(Direction dir)
         digitalWrite(in1, LOW);
         analogWrite(in2, speed);
     }
+    motor_state = dir;
 }
 
 int L2HBd_Motor::setSpeed(int value)

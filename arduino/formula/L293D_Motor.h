@@ -14,7 +14,7 @@ class L293D_Motor : public Motor
     L293D_Motor(int motorNum);
     ~L293D_Motor();
     void stop();
-    void run(Direction dir);
+    void run(State dir);
     int setSpeed(int speed);
 };
 

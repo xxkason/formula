@@ -6,8 +6,8 @@
 class Car
 {
   public:
-    virtual void run(Direction dir) = 0;
-    virtual void turn(Direction dir) = 0;
+    virtual void run(State dir) = 0;
+    virtual void turn(State dir) = 0;
     virtual void stop() = 0;
     virtual int changeSpeed(int speed) = 0;
 };

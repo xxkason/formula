@@ -6,17 +6,20 @@
 #define MAX_SPEED 255
 #define MIN_SPEED 0
 
-enum Direction
+enum State
 {
   FOR = 1,
-  BACK = 2
+  BACK = 2,
+  STOP = 3
 };
 
 class Motor
 {
+  protected:
+    State motor_state;
   public:
     virtual void stop() = 0;
-    virtual void run(Direction dir) = 0;
+    virtual void run(State dir) = 0;
     virtual int setSpeed(int speed) = 0;
 };
 

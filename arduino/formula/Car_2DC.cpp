@@ -8,12 +8,12 @@ void Car_2DC::stop()
   drive->stop();
 }
 
-void Car_2DC::run(Direction dir)
+void Car_2DC::run(State dir)
 {
   drive->run(dir);
 }
 
-void Car_2DC::turn(Direction dir)
+void Car_2DC::turn(State dir)
 {
   wheel->run(dir);
   delay(TURNING_TIME);

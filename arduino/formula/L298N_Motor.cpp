@@ -9,19 +9,28 @@ L298N_Motor::L298N_Motor(int in1Pin, int in2Pin, int pwmPin)
     pinMode(in1, OUTPUT);
     pinMode(in2, OUTPUT);
     pinMode(pwm, OUTPUT);
+    stop();
+    motor_state = STOP;
 }
 
 L298N_Motor::~L298N_Motor(){}
 
 void L298N_Motor::stop()
 {
-    digitalWrite(in1, LOW);
-    digitalWrite(in2, LOW);
-    analogWrite(pwm, MIN_SPEED);
+    if (motor_state != STOP)
+    {
+        digitalWrite(in1, LOW);
+        digitalWrite(in2, LOW);
+        analogWrite(pwm, MIN_SPEED);
+        motor_state = STOP;
+    }
 }
 
-void L298N_Motor::run(Direction dir)
+void L298N_Motor::run(State dir)
 {
+    if (motor_state == dir)
+        return;
+    
     if (dir == FOR)
     {
         digitalWrite(in1, HIGH);
@@ -33,6 +42,7 @@ void L298N_Motor::run(Direction dir)
         digitalWrite(in2, HIGH);
     }
     analogWrite(pwm, speed);
+    motor_state = dir;
 }
 
 int L298N_Motor::setSpeed(int value)

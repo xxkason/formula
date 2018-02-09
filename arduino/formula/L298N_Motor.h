@@ -12,7 +12,7 @@ class L298N_Motor : public Motor
     L298N_Motor(int in1Pin, int in2Pin, int pwmPin);
     ~L298N_Motor();
     void stop();
-    void run(Direction dir);
+    void run(State dir);
     int setSpeed(int speed);
 };
 

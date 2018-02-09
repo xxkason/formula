@@ -18,8 +18,8 @@ class Car_2DC : public Car
     Motor *drive;
 
   public:
-    void run(Direction dir);
-    void turn(Direction dir);
+    void run(State dir);
+    void turn(State dir);
     void stop();
     int changeSpeed(int speed);
 };

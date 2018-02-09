@@ -12,7 +12,7 @@ class L2HBd_Motor : public Motor
     L2HBd_Motor(int in1Pin, int in2Pin);
     ~L2HBd_Motor();
     void stop();
-    void run(Direction dir);
+    void run(State dir);
     int setSpeed(int speed);
 };
 

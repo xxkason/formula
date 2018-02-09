@@ -28,7 +28,7 @@ void Car_4WD::stop()
   rf.stop();
 }
 
-void Car_4WD::run(Direction dir)
+void Car_4WD::run(State dir)
 {
   lf.run(dir);
   lb.run(dir);
@@ -36,7 +36,7 @@ void Car_4WD::run(Direction dir)
   rf.run(dir);
 }
 
-void Car_4WD::turn(Direction dir)
+void Car_4WD::turn(State dir)
 {
   if (dir == FOR)
   {
@@ -50,7 +50,7 @@ void Car_4WD::turn(Direction dir)
   }
 }
 
-void Car_4WD::uturn(Direction dir)
+void Car_4WD::uturn(State dir)
 {
   if (dir == FOR)
   {
@@ -63,8 +63,8 @@ void Car_4WD::uturn(Direction dir)
   else if (dir = BACK)
   {
     wheel.write(LEFT_POSITION);
-    rf.run(BACK);
-    rb.run(BACK);
+    rf.run(FOR);
+    rb.run(FOR);
     lf.stop();
     lb.stop();
   }
@@ -74,8 +74,6 @@ void Car_4WD::analog_turn(int angle)
 {
   wheel.write(angle);
 }
-
-void Car_4WD::shift(Direction dir){}
 
 int Car_4WD::changeSpeed(int value)
 {

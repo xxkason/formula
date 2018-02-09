@@ -25,11 +25,10 @@ class Car_4WD : public Car
     Car_4WD(int lfNum = 1, int lbNum = 2, int rbNum = 3, int rfNum = 4, int wheelPin = SERVO_PWM_PIN);
     ~Car_4WD();
     void attachWheel();
-    void run(Direction dir);
-    void turn(Direction dir);
-    void uturn(Direction dir);
+    void run(State dir);
+    void turn(State dir);
+    void uturn(State dir);
     void analog_turn(int angle);
-    void shift(Direction dir);
     void stop();
     int changeSpeed(int speed);
 };
