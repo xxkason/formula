@@ -20,9 +20,9 @@ void Car_2DC::turn(State dir)
   wheel->stop();
 }
 
-int Car_2DC::changeSpeed(int value)
+void Car_2DC::changeSpeed(int value)
 {
-  return drive->setSpeed(value);
+  drive->setSpeed(value);
 }
 
 Car_2DC_L293D::Car_2DC_L293D(int wheelNum, int driverNum): wheel293D(wheelNum), drive293D(driverNum)

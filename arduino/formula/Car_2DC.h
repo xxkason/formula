@@ -10,9 +10,6 @@
 
 class Car_2DC : public Car
 {
-  private:
-    int speed;
-
   protected:
     Motor *wheel;
     Motor *drive;
@@ -21,7 +18,7 @@ class Car_2DC : public Car
     void run(State dir);
     void turn(State dir);
     void stop();
-    int changeSpeed(int speed);
+    void changeSpeed(int speed);
 };
 
 class Car_2DC_L293D : public Car_2DC

@@ -14,7 +14,7 @@ class Car_4WD : public Car
 {
   private:
     int wheel_pin;
-    int speed;
+    int angle;
     Servo wheel;
     L293D_Motor lf;
     L293D_Motor lb;
@@ -28,9 +28,10 @@ class Car_4WD : public Car
     void run(State dir);
     void turn(State dir);
     void uturn(State dir);
-    void analog_turn(int angle);
+    void changeAngle(int angle);
     void stop();
-    int changeSpeed(int speed);
+    void changeSpeed(int speed);
+    int currentAngle();
 };
 
 #endif
