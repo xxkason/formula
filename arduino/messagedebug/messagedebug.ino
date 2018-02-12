@@ -39,7 +39,46 @@ void setup() {
 }
 
 void loop() {
-  processMessage();
+  //processMessage();
+  printSerialMsg();
+}
+
+void printSerialMsg()
+{
+  char msg[1];
+  if (softSerial.readBytes(msg, 1))
+  {
+    char cmd = msg[0];
+    char temp[16];
+    String tmp;
+    Serial.println(cmd);
+    switch (cmd)
+    {
+      case 'W':
+        long speed;
+        speed = softSerial.parseInt();
+        Serial.print("first int parse, speed = ");
+        Serial.println(speed);
+        //softSerial.readBytesUntil('\n', temp, 16);
+        tmp = softSerial.readStringUntil('\n');
+        Serial.print("first int parse, tmp = ");
+        Serial.println(tmp);
+        break;
+      case 'Q':
+        // clear the initial message "Qxxx"
+        // softSerial.readBytesUntil('S', temp, 16);
+        tmp = softSerial.readStringUntil('S');
+        Serial.print("Q message parse, tmp = ");
+        Serial.println(tmp);
+        // clear end
+
+        long angle;
+        angle = softSerial.parseInt();
+        Serial.print("Q message parse, angle = ");
+        Serial.println(angle);
+        break;
+    }
+  }
 }
 
 void processMessage()
@@ -79,7 +118,7 @@ void processMessage()
         case REPLAY:
           if (cmd == 'H') // 'H' is the command to start replay in REPLAY mode
             debugOutput("Car Replay started");
-            break;
+          break;
         case RECORD:
           if (cmd == 'H') // 'H' is the command to start record in RECORD mode
             record();
@@ -383,7 +422,7 @@ void debugOutput(int value)
     }
     Serial.print("[");
     Serial.print(strPadMode);
-    Serial.print("] - ");  
+    Serial.print("] - ");
   }
   Serial.print("Get a variable with value: ");
   Serial.println(value);

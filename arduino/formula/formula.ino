@@ -10,7 +10,7 @@
 
       E               M
       F               N
-A,B,C,D,E,F,M,N continuous send cmd when pressed */
+  A,B,C,D,E,F,M,N continuous send cmd when pressed */
 
 #include "Car_4WD.h"
 
@@ -183,7 +183,7 @@ void manualControl(char cmd)
   {
     padMode = PadMode((padMode + 1) % 4);
   }
-  else 
+  else
   {
     switch (padMode)
     {
@@ -191,7 +191,7 @@ void manualControl(char cmd)
         leftAnalogStick(cmd);
         break;
       case LEFT_RIGHT_STICK:
-        leftrightAnalogStick(cmd);
+        leftRightAnalogStick(cmd);
         break;
       case LEFT_PAD_KEY:
         leftPadKey(cmd);
@@ -207,54 +207,53 @@ void leftAnalogStick(char cmd)
 {
   if (cmd == 'W')
   {
-      long speed;
-      long angle;
-      speed = Serial.parseInt();
-      angle = Serial.parseInt();
+    long speed;
+    long angle;
+    speed = Serial.parseInt();
+    angle = Serial.parseInt();
 
-      /*
-        127 is the center position value,
-        top position is min value = 0,
-        bottom position is max value = 255,
-        easy way: <127 go forward, =127 stop, >127 go backward
-        analog speed change:
-        0: go forward with full speed
-        127: speed is 0
-        255: go backward with full speed
-        go forward speed formula: (127-speed)/(127-0)*255
-        go backward speed formula: speed/(255-127)*255
-      */
-      if (speed < 127)
-      {
-        //btcar->changeSpeed(255 - 2 * speed);
-        btcar->run(FOR);
-      }
-      else if (speed > 127)
-      {
-        //btcar->changeSpeed(2 * speed);
-        btcar->run(BACK);
-      }
-      else if (speed == 127)
-      {
-        btcar->stop();
-      }
-      
-      /*
-        128 is the center position value,
-        left position is min value = 0,
-        right position is max value = 255,
-        analog speed change:
-        0: map to servo 0
-        128: map to servo 90
-        255: map to servo 180
-      */
-      car4wd.changeAngle(angle * 180 / 256);
+    /*
+      127 is the center position value,
+      top position is min value = 0,
+      bottom position is max value = 255,
+      easy way: <127 go forward, =127 stop, >127 go backward
+      analog speed change:
+      0: go forward with full speed
+      127: speed is 0
+      255: go backward with full speed
+      go forward speed formula: (127-speed)/(127-0)*255
+      go backward speed formula: speed/(255-127)*255
+    */
+    if (speed < 127)
+    {
+      //btcar->changeSpeed(255 - 2 * speed);
+      btcar->run(FOR);
+    }
+    else if (speed > 127)
+    {
+      //btcar->changeSpeed(2 * speed);
+      btcar->run(BACK);
+    }
+    else if (speed == 127)
+    {
+      btcar->stop();
+    }
+
+    /*
+      128 is the center position value,
+      left position is min value = 0,
+      right position is max value = 255,
+      analog speed change:
+      0: map to servo 0
+      128: map to servo 90
+      255: map to servo 180
+    */
+    car4wd.changeAngle(angle * 180 / 256);
   }
 }
 
-void leftrightAnalogStick(char cmd)
+void leftRightAnalogStick(char cmd)
 {
-  char temp[6];
   switch (cmd)
   {
     case 'W':
@@ -262,7 +261,7 @@ void leftrightAnalogStick(char cmd)
       speed = Serial.parseInt();
 
       // clear the followed message "Pxxx\n"
-      Serial.readBytesUntil('\n', temp, 4);
+      Serial.readStringUntil('\n');
       // clear end
 
       if (speed < 127)
@@ -281,9 +280,9 @@ void leftrightAnalogStick(char cmd)
       }
       break;
     case 'Q':
-      
+
       // clear the initial message "Qxxx"
-      Serial.readBytesUntil('S', temp, 3);
+      Serial.readStringUntil('S');
       // clear end
 
       long angle;
