@@ -341,8 +341,8 @@ void debugOutput(String msg)
     Serial.print("[");
     Serial.print(strPadMode);
     Serial.print("] - ");
-    Serial.println(msg);
   }
+  Serial.println(msg);
 }
 
 void debugOutput(int value)
@@ -383,8 +383,8 @@ void debugOutput(int value)
     }
     Serial.print("[");
     Serial.print(strPadMode);
-    Serial.print("] - ");
-    Serial.print("Get a variable with value: ");
-    Serial.println(value);
+    Serial.print("] - ");  
   }
+  Serial.print("Get a variable with value: ");
+  Serial.println(value);
 }
