@@ -22,7 +22,7 @@ void Car_4WD::attachWheel() //call this method in setup() function
 
 void Car_4WD::stop()
 {
-  wheel.write(CENTER_POSITION);
+  //wheel.write(CENTER_POSITION);
   lf.stop();
   lb.stop();
   rb.stop();

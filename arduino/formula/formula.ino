@@ -109,7 +109,10 @@ void processMessage()
     }
   }
   else if (carMode == MANUAL && padMode == LEFT_PAD_KEY)
+  {
     btcar->stop();
+    car4wd.changeAngle(CENTER_POSITION);
+  }
   else if (carMode == RECORD)
     ledBlink(CAR_MODE_INDICATOR_PIN, 1000);
 }
@@ -119,6 +122,7 @@ void replay()
   for (int index = 0; index < EEPROM.length() ; index++) {
     if (EEPROM[index] == 0) {
       btcar->stop();
+      car4wd.changeAngle(CENTER_POSITION);
       break;
     }
     rightPadKey(EEPROM[index]);
@@ -147,6 +151,7 @@ void record()
       {
         // stop learning
         btcar->stop();
+        car4wd.changeAngle(CENTER_POSITION);
         digitalWrite(CAR_MODE_INDICATOR_PIN, LOW);
         break;
       }
@@ -280,7 +285,6 @@ void leftRightAnalogStick(char cmd)
       }
       break;
     case 'Q':
-
       // clear the initial message "Qxxx"
       Serial.readStringUntil('S');
       // clear end
@@ -342,6 +346,7 @@ void rightPadKey(char cmd)
     case 'E':
     case 'H':
       btcar->stop();
+      car4wd.changeAngle(CENTER_POSITION);
       break;
   }
 }
