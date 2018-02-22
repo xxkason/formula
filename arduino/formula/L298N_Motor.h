@@ -6,14 +6,13 @@
 class L298N_Motor : public Motor
 {
   private:
-    int in1, in2, pwm, speed;
+    byte in1, in2, pwm, speed;
 
   public:
-    L298N_Motor(int in1Pin, int in2Pin, int pwmPin);
-    ~L298N_Motor();
+    L298N_Motor(byte in1Pin, byte in2Pin, byte pwmPin);
     void stop();
     void run(State dir);
-    int setSpeed(int speed);
+    byte setSpeed(byte speed);
 };
 
 #endif

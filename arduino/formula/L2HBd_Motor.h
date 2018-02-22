@@ -6,14 +6,13 @@
 class L2HBd_Motor : public Motor
 {
   private:
-    int in1, in2, speed;
+    byte in1, in2, speed;
 
   public:
-    L2HBd_Motor(int in1Pin, int in2Pin);
-    ~L2HBd_Motor();
+    L2HBd_Motor(byte in1Pin, byte in2Pin);
     void stop();
     void run(State dir);
-    int setSpeed(int speed);
+    byte setSpeed(byte speed);
 };
 
 #endif

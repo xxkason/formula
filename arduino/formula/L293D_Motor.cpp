@@ -1,13 +1,11 @@
 #include "L293D_Motor.h"
 
-L293D_Motor::L293D_Motor(int motorNum): motor(motorNum)
+L293D_Motor::L293D_Motor(byte motorNum): motor(motorNum)
 {
   motor.setSpeed(MAX_SPEED);
   motor.run(RELEASE);
   motor_state = STOP;
 }
-
-L293D_Motor::~L293D_Motor() {}
 
 void L293D_Motor::stop()
 {
@@ -27,7 +25,7 @@ void L293D_Motor::run(State dir)
   }
 }
 
-int L293D_Motor::setSpeed(int value)
+byte L293D_Motor::setSpeed(byte value)
 {
   if (value > MAX_SPEED)
     speed = MAX_SPEED;

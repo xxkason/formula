@@ -7,15 +7,14 @@
 class L293D_Motor : public Motor
 {
   private:
-    int speed;
+    byte speed;
     AF_DCMotor motor;
 
   public:
-    L293D_Motor(int motorNum);
-    ~L293D_Motor();
+    L293D_Motor(byte motorNum);
     void stop();
     void run(State dir);
-    int setSpeed(int speed);
+    byte setSpeed(byte speed);
 };
 
 #endif

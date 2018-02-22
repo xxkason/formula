@@ -1,6 +1,6 @@
 #include "L298N_Motor.h"
 
-L298N_Motor::L298N_Motor(int in1Pin, int in2Pin, int pwmPin)
+L298N_Motor::L298N_Motor(byte in1Pin, byte in2Pin, byte pwmPin)
 {
     in1 = in1Pin;
     in2 = in2Pin;
@@ -12,8 +12,6 @@ L298N_Motor::L298N_Motor(int in1Pin, int in2Pin, int pwmPin)
     stop();
     motor_state = STOP;
 }
-
-L298N_Motor::~L298N_Motor(){}
 
 void L298N_Motor::stop()
 {
@@ -45,7 +43,7 @@ void L298N_Motor::run(State dir)
     motor_state = dir;
 }
 
-int L298N_Motor::setSpeed(int value)
+byte L298N_Motor::setSpeed(byte value)
 {
     if (value > MAX_SPEED)
         speed = MAX_SPEED;

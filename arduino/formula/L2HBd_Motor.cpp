@@ -1,6 +1,6 @@
 #include "L2HBd_Motor.h"
 
-L2HBd_Motor::L2HBd_Motor(int in1Pin, int in2Pin)
+L2HBd_Motor::L2HBd_Motor(byte in1Pin, byte in2Pin)
 {
     in1 = in1Pin;
     in2 = in2Pin;
@@ -11,8 +11,6 @@ L2HBd_Motor::L2HBd_Motor(int in1Pin, int in2Pin)
     digitalWrite(in2, LOW);
     motor_state = STOP;
 }
-
-L2HBd_Motor::~L2HBd_Motor(){}
 
 void L2HBd_Motor::stop()
 {
@@ -42,7 +40,7 @@ void L2HBd_Motor::run(State dir)
     motor_state = dir;
 }
 
-int L2HBd_Motor::setSpeed(int value)
+byte L2HBd_Motor::setSpeed(byte value)
 {
     if (value > MAX_SPEED)
         speed = MAX_SPEED;

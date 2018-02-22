@@ -15,10 +15,11 @@ class Car_2DC : public Car
     Motor *drive;
 
   public:
+    Car_2DC();
     void run(State dir);
-    void turn(State dir);
+    void turn(byte dir);
     void stop();
-    void changeSpeed(int speed);
+    void changeSpeed(byte speed);
 };
 
 class Car_2DC_L293D : public Car_2DC
@@ -27,7 +28,7 @@ class Car_2DC_L293D : public Car_2DC
     L293D_Motor wheel293D;
     L293D_Motor drive293D;
   public:
-    Car_2DC_L293D(int wheelNum, int driverNum);
+    Car_2DC_L293D(byte wheelNum, byte driverNum);
 };
 
 class Car_2DC_L298N : public Car_2DC
@@ -36,7 +37,7 @@ class Car_2DC_L298N : public Car_2DC
     L298N_Motor wheel298N;
     L298N_Motor drive298N;
   public:
-    Car_2DC_L298N(int wheelIn1Pin, int wheelIn2Pin, int wheelPWMPin, int driveIn1Pin, int driveIn2Pin, int drivePWMPin);
+    Car_2DC_L298N(byte wheelIn1Pin, byte wheelIn2Pin, byte wheelPWMPin, byte driveIn1Pin, byte driveIn2Pin, byte drivePWMPin);
 };
 
 class Car_2DC_L2HBd : public Car_2DC
@@ -45,7 +46,7 @@ class Car_2DC_L2HBd : public Car_2DC
     L2HBd_Motor wheel2hbd;
     L2HBd_Motor drive2hbd;
   public:
-    Car_2DC_L2HBd(int wheelIn1Pin, int wheelIn2Pin, int driveIn1Pin, int driveIn2Pin);
+    Car_2DC_L2HBd(byte wheelIn1Pin, byte wheelIn2Pin, byte driveIn1Pin, byte driveIn2Pin);
 };
 
 #endif

@@ -1,6 +1,6 @@
 #include "Car_4WD.h"
 
-Car_4WD::Car_4WD(int lfNum, int lbNum, int rbNum, int rfNum, int wheelPin):lf(lfNum),lb(lbNum),rb(rbNum),rf(rfNum)
+Car_4WD::Car_4WD(byte lfNum, byte lbNum, byte rbNum, byte rfNum, byte wheelPin):lf(lfNum),lb(lbNum),rb(rbNum),rf(rfNum)
 {
   //Servo pin attach must do in setup() function in the sketch
   //if you do the attach in contructor, 
@@ -11,8 +11,6 @@ Car_4WD::Car_4WD(int lfNum, int lbNum, int rbNum, int rfNum, int wheelPin):lf(lf
   wheel_pin = wheelPin;
   angle = CENTER_POSITION;
 }
-
-Car_4WD::~Car_4WD() {}
 
 void Car_4WD::attachWheel() //call this method in setup() function
 {
@@ -37,18 +35,15 @@ void Car_4WD::run(State dir)
   rf.run(dir);
 }
 
-void Car_4WD::turn(State dir)
+void Car_4WD::turn(byte value)
 {
-  if (dir == FOR)
-  {
-    wheel.write(RIGHT_POSITION);
-    //Serial.println("wheel servo turn left");
-  }
-  else if (dir == BACK)
-  {
-    wheel.write(LEFT_POSITION);
-    //Serial.println("wheel servo turn right");
-  }
+  if (value > RIGHT_POSITION)
+    angle = RIGHT_POSITION;
+  else if (value < LEFT_POSITION)
+    angle = LEFT_POSITION;
+  else
+    angle = value;
+  wheel.write(angle);
 }
 
 void Car_4WD::uturn(State dir)
@@ -71,23 +66,7 @@ void Car_4WD::uturn(State dir)
   }
 }
 
-void Car_4WD::changeAngle(int value)
-{
-  if (value > RIGHT_POSITION)
-    angle = RIGHT_POSITION;
-  else if (value < LEFT_POSITION)
-    angle = LEFT_POSITION;
-  else
-    angle = value;
-  wheel.write(angle);
-}
-
-int Car_4WD::currentAngle()
-{
-  return angle;
-}
-
-void Car_4WD::changeSpeed(int value)
+void Car_4WD::changeSpeed(byte value)
 {
   lf.setSpeed(value);
   lb.setSpeed(value);

@@ -6,15 +6,11 @@
 #include <Servo.h>
 
 #define SERVO_PWM_PIN 10
-#define RIGHT_POSITION 180
-#define LEFT_POSITION 0
-#define CENTER_POSITION 90
 
 class Car_4WD : public Car
 {
   private:
-    int wheel_pin;
-    int angle;
+    byte wheel_pin;
     Servo wheel;
     L293D_Motor lf;
     L293D_Motor lb;
@@ -22,16 +18,13 @@ class Car_4WD : public Car
     L293D_Motor rb;
 
   public:
-    Car_4WD(int lfNum = 1, int lbNum = 2, int rbNum = 3, int rfNum = 4, int wheelPin = SERVO_PWM_PIN);
-    ~Car_4WD();
+    Car_4WD(byte lfNum = 1, byte lbNum = 2, byte rbNum = 3, byte rfNum = 4, byte wheelPin = SERVO_PWM_PIN);
     void attachWheel();
     void run(State dir);
-    void turn(State dir);
+    void turn(byte angle);
     void uturn(State dir);
-    void changeAngle(int angle);
     void stop();
-    void changeSpeed(int speed);
-    int currentAngle();
+    void changeSpeed(byte speed);
 };
 
 #endif

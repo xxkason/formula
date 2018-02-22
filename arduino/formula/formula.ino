@@ -41,7 +41,7 @@ Car *btcar;
 // Car_2DC_L298N car298n(2, 4, 6, 7, 8, 9);
 // Car_2DC_L2HBd car2hbd(3, 5, 6, 9);
 Car_4WD car4wd(1, 2, 3, 4, 10);
-PadMode padMode = LEFT_ANALOG_STICK;
+PadMode padMode = LEFT_RIGHT_STICK;
 CarMode carMode = MANUAL;
 int romAddr = 0;
 unsigned long beginTime;
@@ -111,7 +111,7 @@ void processMessage()
   else if (carMode == MANUAL && padMode == LEFT_PAD_KEY)
   {
     btcar->stop();
-    car4wd.changeAngle(CENTER_POSITION);
+    btcar->turn(CENTER_POSITION);
   }
   else if (carMode == RECORD)
     ledBlink(CAR_MODE_INDICATOR_PIN, 1000);
@@ -122,13 +122,13 @@ void replay()
   for (int index = 0; index < EEPROM.length() ; index++) {
     if (EEPROM[index] == 0) {
       btcar->stop();
-      car4wd.changeAngle(CENTER_POSITION);
+      btcar->turn(CENTER_POSITION);
       break;
     }
     rightPadKey(EEPROM[index]);
     byte high = EEPROM.read(++index);
     byte low = EEPROM.read(++index);
-    int duration = word(high, low);
+    unsigned int duration = word(high, low);
     delay(duration);
   }
 }
@@ -151,7 +151,7 @@ void record()
       {
         // stop learning
         btcar->stop();
-        car4wd.changeAngle(CENTER_POSITION);
+        btcar->turn(CENTER_POSITION);
         digitalWrite(CAR_MODE_INDICATOR_PIN, LOW);
         break;
       }
@@ -166,7 +166,7 @@ void record()
           {
             if (beginTime != 0)
             {
-              int duration = millis() - beginTime;
+              unsigned int duration = millis() - beginTime;
               EEPROM.write(romAddr++, highByte(duration));
               EEPROM.write(romAddr++, lowByte(duration));
             }
@@ -187,6 +187,7 @@ void manualControl(char cmd)
   if (cmd == 'H') // switch gamepad control mode
   {
     padMode = PadMode((padMode + 1) % 4);
+    btcar->changeSpeed(255);
   }
   else
   {
@@ -212,8 +213,8 @@ void leftAnalogStick(char cmd)
 {
   if (cmd == 'W')
   {
-    long speed;
-    long angle;
+    byte speed;
+    byte angle;
     speed = Serial.parseInt();
     angle = Serial.parseInt();
 
@@ -253,7 +254,7 @@ void leftAnalogStick(char cmd)
       128: map to servo 90
       255: map to servo 180
     */
-    car4wd.changeAngle(angle * 180 / 256);
+    btcar->turn(angle * 180 / 256);
   }
 }
 
@@ -262,7 +263,7 @@ void leftRightAnalogStick(char cmd)
   switch (cmd)
   {
     case 'W':
-      long speed;
+      byte speed;
       speed = Serial.parseInt();
 
       // clear the followed message "Pxxx\n"
@@ -289,9 +290,9 @@ void leftRightAnalogStick(char cmd)
       Serial.readStringUntil('S');
       // clear end
 
-      long angle;
+      byte angle;
       angle = Serial.parseInt();
-      car4wd.changeAngle(angle * 180 / 256);
+      btcar->turn(angle * 180 / 256);
       break;
   }
 }
@@ -312,12 +313,12 @@ void leftPadKey(char cmd)
       break;
     case 'l':
     case 'C':
-      btcar->turn(BACK);
+      btcar->turn(LEFT_POSITION);
       //Serial.println("Turn Left");
       break;
     case 'r':
     case 'D':
-      btcar->turn(FOR);
+      btcar->turn(RIGHT_POSITION);
       //Serial.println("Turn Right");
       break;
   }
@@ -336,17 +337,17 @@ void rightPadKey(char cmd)
       //Serial.println("Run Backward");
       break;
     case 'K':
-      car4wd.changeAngle(car4wd.currentAngle() - 90);
+      btcar->turn(btcar->currentAngle() - 90);
       //Serial.println("Turn Left");
       break;
     case 'L':
-      car4wd.changeAngle(car4wd.currentAngle() + 90);
+      btcar->turn(btcar->currentAngle() + 90);
       //Serial.println("Turn Right");
       break;
     case 'E':
     case 'H':
       btcar->stop();
-      car4wd.changeAngle(CENTER_POSITION);
+      btcar->turn(CENTER_POSITION);
       break;
   }
 }
@@ -358,7 +359,7 @@ void clearEEPROM()
   }
 }
 
-void ledBlink(int ledPin, int period)
+void ledBlink(byte ledPin, byte period)
 {
   digitalWrite(ledPin, LOW);
   delay(period);

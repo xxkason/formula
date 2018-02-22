@@ -20,7 +20,7 @@ class Motor
   public:
     virtual void stop() = 0;
     virtual void run(State dir) = 0;
-    virtual int setSpeed(int speed) = 0;
+    virtual byte setSpeed(byte speed) = 0;
 };
 
 #endif
