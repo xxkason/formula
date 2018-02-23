@@ -14,7 +14,7 @@
 
 #include "Car_4WD.h"
 
-#define GAMEPAD_BAUD_RATE 9600
+#define GAMEPAD_BAUD_RATE 115200
 #define BLUETOOTH_BAUD_RATE 9600
 #define CAR_MODE_INDICATOR_PIN 2
 #define PAD_MODE_INDICATOR_PIN 13
@@ -187,6 +187,15 @@ void manualControl(char cmd)
   if (cmd == 'H') // switch gamepad control mode
   {
     padMode = PadMode((padMode + 1) % 4);
+    switch (padMode)
+    {
+      case LEFT_RIGHT_STICK:
+        digitalWrite(PAD_MODE_INDICATOR_PIN, HIGH);
+        break;
+      case RIGHT_PAD_KEY:
+        digitalWrite(PAD_MODE_INDICATOR_PIN, LOW);
+        break;
+    }
     btcar->changeSpeed(255);
   }
   else
@@ -256,6 +265,7 @@ void leftAnalogStick(char cmd)
     */
     btcar->turn(angle * 180 / 256);
   }
+  ledBlink(PAD_MODE_INDICATOR_PIN, 1000);
 }
 
 void leftRightAnalogStick(char cmd)
@@ -322,6 +332,7 @@ void leftPadKey(char cmd)
       //Serial.println("Turn Right");
       break;
   }
+  ledBlink(PAD_MODE_INDICATOR_PIN, 500);
 }
 
 void rightPadKey(char cmd)
@@ -359,7 +370,7 @@ void clearEEPROM()
   }
 }
 
-void ledBlink(byte ledPin, byte period)
+void ledBlink(byte ledPin, unsigned int period)
 {
   digitalWrite(ledPin, LOW);
   delay(period);
