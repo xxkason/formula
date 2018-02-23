@@ -59,7 +59,7 @@ void setup()
   pinMode(CAR_MODE_INDICATOR_PIN, OUTPUT);
   digitalWrite(CAR_MODE_INDICATOR_PIN, LOW);
   pinMode(PAD_MODE_INDICATOR_PIN, OUTPUT);
-  digitalWrite(PAD_MODE_INDICATOR_PIN, LOW);
+  digitalWrite(PAD_MODE_INDICATOR_PIN, HIGH);
   Serial.setTimeout(300);
 }
 
@@ -84,6 +84,7 @@ void processMessage()
           break;
         case RECORD:
           digitalWrite(CAR_MODE_INDICATOR_PIN, HIGH);
+          digitalWrite(PAD_MODE_INDICATOR_PIN, LOW);
           break;
         case REPLAY:
           digitalWrite(CAR_MODE_INDICATOR_PIN, HIGH);
@@ -187,11 +188,15 @@ void manualControl(char cmd)
   if (cmd == 'H') // switch gamepad control mode
   {
     padMode = PadMode((padMode + 1) % 4);
+    ledBlink(PAD_MODE_INDICATOR_PIN, 500);
+    ledBlink(PAD_MODE_INDICATOR_PIN, 500);
     switch (padMode)
     {
+      case LEFT_ANALOG_STICK:
       case LEFT_RIGHT_STICK:
         digitalWrite(PAD_MODE_INDICATOR_PIN, HIGH);
         break;
+      case LEFT_PAD_KEY:
       case RIGHT_PAD_KEY:
         digitalWrite(PAD_MODE_INDICATOR_PIN, LOW);
         break;
@@ -265,7 +270,6 @@ void leftAnalogStick(char cmd)
     */
     btcar->turn(angle * 180 / 256);
   }
-  ledBlink(PAD_MODE_INDICATOR_PIN, 1000);
 }
 
 void leftRightAnalogStick(char cmd)
@@ -332,7 +336,6 @@ void leftPadKey(char cmd)
       //Serial.println("Turn Right");
       break;
   }
-  ledBlink(PAD_MODE_INDICATOR_PIN, 500);
 }
 
 void rightPadKey(char cmd)
