@@ -376,6 +376,7 @@ void clearEEPROM()
 void ledBlink(byte ledPin, unsigned int period)
 {
   digitalWrite(ledPin, LOW);
-  delay(period);
+  delay(period / 2);
   digitalWrite(ledPin, HIGH);
+  delay(period / 2);
 }
