@@ -335,6 +335,12 @@ void leftPadKey(char cmd)
       btcar->turn(RIGHT_POSITION);
       //Serial.println("Turn Right");
       break;
+    case 'F':
+      car4wd.uturn(FOR);
+      break;
+    case 'N':
+      car4wd.uturn(BACK);
+      break;
   }
 }
 
