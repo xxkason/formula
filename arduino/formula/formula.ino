@@ -45,6 +45,8 @@ PadMode padMode = LEFT_RIGHT_STICK;
 CarMode carMode = MANUAL;
 int romAddr = 0;
 unsigned long beginTime;
+bool leftSensorValue = false;
+bool rightSensorValue = false;
 
 // https://www.arduino.cc/en/Reference/PortManipulation
 // PORTD maps to Arduino digital pins 0 to 7
@@ -65,6 +67,7 @@ unsigned long beginTime;
 //     PORTC - The Port C Data Register - read/write
 //     PINC - The Port C Input Pins Register - read only 
 
+// http://gammon.com.au/interrupts
 // Below is a list of interrupts, in priority order, for the Atmega328:
 
 //  1  Reset 
@@ -96,7 +99,8 @@ unsigned long beginTime;
 
 ISR (PCINT1_vect)
 {
-  if (digitalRead(A0))
+  leftSensorValue = PINC & bit(0);
+  rightSensorValue = PINC & bit(5);
 }
 
 void setup()
@@ -113,12 +117,20 @@ void setup()
   // digitalWrite(CAR_MODE_INDICATOR_PIN, LOW);
   // pinMode(PAD_MODE_INDICATOR_PIN, OUTPUT);
   // digitalWrite(PAD_MODE_INDICATOR_PIN, HIGH);
-  DDRD = DDRD | B00000100;
-  DDRB = DDRB | B10000000;
-  PORTD = PORTD | ;
-  PORTB = PORTB | ;
-  pinMode(A0, INPUT);
-  pinMode(A1, INPUT);
+  // pinMode(A0, INPUT);
+  // pinMode(A1, INPUT);
+  DDRD |= (1<<DDD2); // Set digital pin 2 to output mode
+  DDRB |= (1<<DDB5); // Set digital pin 13 to output mode
+  DDRC &= ~(1<<DDC0); // Set analog pin A0 to input mode
+  DDRC &= ~(1<<DDC5); // Set analog pin A5 to input mode
+  PORTD &= ~(1<<PORTD2); // make digital pin 2 low
+  PORTB &= ~(1<<PORTB5); // make digital pin 13 low
+  
+  // pin change interrupt
+  PCMSK1 |= bit (PCINT8); // want pin A0
+  PCMSK1 |= bit (PCINT13); // want pin A5
+  PCIFR  |= bit (PCIF1);   // clear any outstanding interrupts
+  PCICR  |= bit (PCIE1);   // enable pin change interrupts for A0 to A5
   Serial.setTimeout(300);
 }
 
@@ -139,14 +151,14 @@ void processMessage()
       switch (carMode)
       {
         case MANUAL:
-          digitalWrite(CAR_MODE_INDICATOR_PIN, LOW);
+          PORTD &= ~(1<<PORTD2); // make digital pin 2 low
           break;
         case RECORD:
-          digitalWrite(CAR_MODE_INDICATOR_PIN, HIGH);
-          digitalWrite(PAD_MODE_INDICATOR_PIN, LOW);
+          PORTD |= (1<<PORTD2); // make digital pin 2 high
+          PORTB &= ~(1<<PORTB5); // make digital pin 13 low
           break;
         case REPLAY:
-          digitalWrite(CAR_MODE_INDICATOR_PIN, HIGH);
+          PORTD |= (1<<PORTD2); // make digital pin 2 high
           break;
       }
     }
@@ -195,7 +207,7 @@ void replay()
 
 void record()
 {
-  digitalWrite(CAR_MODE_INDICATOR_PIN, LOW); // turn off the led to indicate user eeprom clear is started
+  PORTD &= ~(1<<PORTD2); // make digital pin 2 low, turn off the led to indicate user eeprom clear is started
   clearEEPROM();
   digitalWrite(CAR_MODE_INDICATOR_PIN, HIGH); // turn on the led to indicate user eeprom clear is done
   beginTime = 0;
@@ -212,7 +224,7 @@ void record()
         // stop learning
         btcar->stop();
         btcar->turn(CENTER_POSITION);
-        digitalWrite(CAR_MODE_INDICATOR_PIN, LOW);
+        PORTD &= ~(1<<PORTD2); // make digital pin 2 low
         break;
       }
       switch (cmdValue)
