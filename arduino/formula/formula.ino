@@ -1,6 +1,4 @@
 #include <EEPROM.h>
-//#include <SoftwareSerial.h>
-//#include "Car_2DC.h"
 
 /* Gamepad msg info
      Left           Right
@@ -15,17 +13,13 @@
 #include "Car_4WD.h"
 
 #define GAMEPAD_BAUD_RATE 115200
-#define BLUETOOTH_BAUD_RATE 9600
 #define CAR_MODE_INDICATOR_PIN 2
 #define PAD_MODE_INDICATOR_PIN 13
-//#define PROXIMITY_SENSOR_PIN1
 
 enum PadMode
 {
-  LEFT_ANALOG_STICK = 0,
-  LEFT_RIGHT_STICK = 1,
-  LEFT_PAD_KEY = 2,
-  RIGHT_PAD_KEY = 3
+  LEFT_RIGHT_STICK = 0,
+  LEFT_PAD_KEY = 1
 };
 
 enum CarMode
@@ -37,9 +31,6 @@ enum CarMode
 
 //SoftwareSerial softSerial(10, 11); // RX, TX
 Car *btcar;
-// Car_2DC_L293D car293d(1, 2);
-// Car_2DC_L298N car298n(2, 4, 6, 7, 8, 9);
-// Car_2DC_L2HBd car2hbd(3, 5, 6, 9);
 Car_4WD car4wd(1, 2, 3, 4, 10);
 PadMode padMode = LEFT_RIGHT_STICK;
 CarMode carMode = MANUAL;
@@ -99,8 +90,17 @@ bool rightSensorValue = false;
 
 ISR (PCINT1_vect)
 {
-  leftSensorValue = PINC & bit(0);
-  rightSensorValue = PINC & bit(5);
+  if (PINC & bit(0))
+    car4wd.turn(RIGHT_POSITION);
+  else
+    car4wd.turn(CENTER_POSITION);
+  
+  if (PINC & bit(5))
+    car4wd.turn(LEFT_POSITION);
+  else
+    car4wd.turn(CENTER_POSITION);
+//  leftSensorValue = PINC & bit(0);
+//  rightSensorValue = PINC & bit(5);
 }
 
 void setup()
@@ -132,11 +132,16 @@ void setup()
   PCIFR  |= bit (PCIF1);   // clear any outstanding interrupts
   PCICR  |= bit (PCIE1);   // enable pin change interrupts for A0 to A5
   Serial.setTimeout(300);
+  car4wd.changeSpeed(65);
+  car4wd.run(FOR);
+  delay(5000);
+  car4wd.stop();
 }
 
 void loop()
 {
-  processMessage();
+  
+  //processMessage();
 }
 
 void processMessage()
@@ -179,11 +184,6 @@ void processMessage()
           break;
       }
     }
-  }
-  else if (carMode == MANUAL && padMode == LEFT_PAD_KEY)
-  {
-    btcar->stop();
-    btcar->turn(CENTER_POSITION);
   }
   else if (carMode == RECORD)
     ledBlink(CAR_MODE_INDICATOR_PIN, 1000);
@@ -258,17 +258,13 @@ void manualControl(char cmd)
 {
   if (cmd == 'H') // switch gamepad control mode
   {
-    padMode = PadMode((padMode + 1) % 4);
-    ledBlink(PAD_MODE_INDICATOR_PIN, 500);
-    ledBlink(PAD_MODE_INDICATOR_PIN, 500);
+    padMode = PadMode((padMode + 1) % 2);
     switch (padMode)
     {
-      case LEFT_ANALOG_STICK:
       case LEFT_RIGHT_STICK:
         digitalWrite(PAD_MODE_INDICATOR_PIN, HIGH);
         break;
       case LEFT_PAD_KEY:
-      case RIGHT_PAD_KEY:
         digitalWrite(PAD_MODE_INDICATOR_PIN, LOW);
         break;
     }
@@ -278,68 +274,13 @@ void manualControl(char cmd)
   {
     switch (padMode)
     {
-      case LEFT_ANALOG_STICK:
-        leftAnalogStick(cmd);
-        break;
       case LEFT_RIGHT_STICK:
         leftRightAnalogStick(cmd);
         break;
       case LEFT_PAD_KEY:
         leftPadKey(cmd);
         break;
-      case RIGHT_PAD_KEY:
-        rightPadKey(cmd);
-        break;
     }
-  }
-}
-
-void leftAnalogStick(char cmd)
-{
-  if (cmd == 'W')
-  {
-    byte speed;
-    byte angle;
-    speed = Serial.parseInt();
-    angle = Serial.parseInt();
-
-    /*
-      127 is the center position value,
-      top position is min value = 0,
-      bottom position is max value = 255,
-      easy way: <127 go forward, =127 stop, >127 go backward
-      analog speed change:
-      0: go forward with full speed
-      127: speed is 0
-      255: go backward with full speed
-      go forward speed formula: (127-speed)/(127-0)*255
-      go backward speed formula: speed/(255-127)*255
-    */
-    if (speed < 127)
-    {
-      //btcar->changeSpeed(255 - 2 * speed);
-      btcar->run(FOR);
-    }
-    else if (speed > 127)
-    {
-      //btcar->changeSpeed(2 * speed);
-      btcar->run(BACK);
-    }
-    else if (speed == 127)
-    {
-      btcar->stop();
-    }
-
-    /*
-      128 is the center position value,
-      left position is min value = 0,
-      right position is max value = 255,
-      analog speed change:
-      0: map to servo 0
-      128: map to servo 90
-      255: map to servo 180
-    */
-    btcar->turn(angle * 180 / 256);
   }
 }
 
@@ -355,6 +296,18 @@ void leftRightAnalogStick(char cmd)
       Serial.readStringUntil('\n');
       // clear end
 
+      /*
+        127 is the center position value,
+        top position is min value = 0,
+        bottom position is max value = 255,
+        easy way: <127 go forward, =127 stop, >127 go backward
+        analog speed change:
+        0: go forward with full speed
+        127: speed is 0
+        255: go backward with full speed
+        go forward speed formula: (127-speed)/(127-0)*255
+        go backward speed formula: speed/(255-127)*255
+      */
       if (speed < 127)
       {
         btcar->changeSpeed(255 - 2 * speed);
@@ -375,6 +328,15 @@ void leftRightAnalogStick(char cmd)
       Serial.readStringUntil('S');
       // clear end
 
+      /*
+        128 is the center position value,
+        left position is min value = 0,
+        right position is max value = 255,
+        analog speed change:
+        0: map to servo 0
+        128: map to servo 90
+        255: map to servo 180
+      */
       byte angle;
       angle = Serial.parseInt();
       btcar->turn(angle * 180 / 256);
