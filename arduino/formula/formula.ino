@@ -36,8 +36,6 @@ PadMode padMode = LEFT_RIGHT_STICK;
 CarMode carMode = MANUAL;
 int romAddr = 0;
 unsigned long beginTime;
-bool leftSensorValue = false;
-bool rightSensorValue = false;
 
 // https://www.arduino.cc/en/Reference/PortManipulation
 // PORTD maps to Arduino digital pins 0 to 7
@@ -87,21 +85,22 @@ bool rightSensorValue = false;
 // 24  Analog Comparator                               (ANALOG_COMP_vect)
 // 25  2-wire Serial Interface  (I2C)                  (TWI_vect)
 // 26  Store Program Memory Ready                      (SPM_READY_vect)
-
-ISR (PCINT1_vect)
-{
-  if (PINC & bit(0))
-    car4wd.turn(RIGHT_POSITION);
-  else
-    car4wd.turn(CENTER_POSITION);
-  
-  if (PINC & bit(5))
-    car4wd.turn(LEFT_POSITION);
-  else
-    car4wd.turn(CENTER_POSITION);
-//  leftSensorValue = PINC & bit(0);
-//  rightSensorValue = PINC & bit(5);
-}
+//volatile boolean leftSensor = false;
+//volatile boolean rightSensor = false;
+//
+//ISR (PCINT1_vect)
+//{
+//  leftSensor = (PINC & bit(0));
+//  rightSensor = (PINC & bit(5));
+//  if (leftSensor & rightSensor)
+//    car4wd.turn(CENTER_POSITION);
+//  else if (~leftSensor & rightSensor)
+//    car4wd.turn(RIGHT_POSITION);
+//  else if (leftSensor & ~rightSensor)
+//    car4wd.turn(LEFT_POSITION);
+//  else
+//    car4wd.stop();
+//}
 
 void setup()
 {
@@ -113,16 +112,16 @@ void setup()
   // Serial.println("Hello, monitor");
   car4wd.attachWheel();
   btcar = &car4wd;
-  // pinMode(CAR_MODE_INDICATOR_PIN, OUTPUT);
+   pinMode(CAR_MODE_INDICATOR_PIN, OUTPUT);
   // digitalWrite(CAR_MODE_INDICATOR_PIN, LOW);
-  // pinMode(PAD_MODE_INDICATOR_PIN, OUTPUT);
+   pinMode(PAD_MODE_INDICATOR_PIN, OUTPUT);
   // digitalWrite(PAD_MODE_INDICATOR_PIN, HIGH);
-  // pinMode(A0, INPUT);
-  // pinMode(A1, INPUT);
-  DDRD |= (1<<DDD2); // Set digital pin 2 to output mode
-  DDRB |= (1<<DDB5); // Set digital pin 13 to output mode
-  DDRC &= ~(1<<DDC0); // Set analog pin A0 to input mode
-  DDRC &= ~(1<<DDC5); // Set analog pin A5 to input mode
+//   pinMode(A0, INPUT);
+//   pinMode(A1, INPUT);
+//  DDRD |= (1<<DDD2); // Set digital pin 2 to output mode
+//  DDRB |= (1<<DDB5); // Set digital pin 13 to output mode
+//  DDRC &= ~(1<<DDC0); // Set analog pin A0 to input mode
+//  DDRC &= ~(1<<DDC5); // Set analog pin A5 to input mode
   PORTD &= ~(1<<PORTD2); // make digital pin 2 low
   PORTB &= ~(1<<PORTB5); // make digital pin 13 low
   
@@ -132,16 +131,11 @@ void setup()
   PCIFR  |= bit (PCIF1);   // clear any outstanding interrupts
   PCICR  |= bit (PCIE1);   // enable pin change interrupts for A0 to A5
   Serial.setTimeout(300);
-  car4wd.changeSpeed(65);
-  car4wd.run(FOR);
-  delay(5000);
-  car4wd.stop();
 }
 
 void loop()
 {
-  
-  //processMessage();
+  processMessage();
 }
 
 void processMessage()
