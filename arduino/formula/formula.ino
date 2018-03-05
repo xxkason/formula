@@ -39,26 +39,22 @@ unsigned long beginTime;
 
 // https://www.arduino.cc/en/Reference/PortManipulation
 // PORTD maps to Arduino digital pins 0 to 7
-
 //     DDRD - The Port D Data Direction Register - read/write
 //     PORTD - The Port D Data Register - read/write
 //     PIND - The Port D Input Pins Register - read only 
 
 // PORTB maps to Arduino digital pins 8 to 13 The two high bits (6 & 7) map to the crystal pins and are not usable
-
 //     DDRB - The Port B Data Direction Register - read/write
 //     PORTB - The Port B Data Register - read/write
 //     PINB - The Port B Input Pins Register - read only 
 
 // PORTC maps to Arduino analog pins 0 to 5. Pins 6 & 7 are only accessible on the Arduino Mini
-
 //     DDRC - The Port C Data Direction Register - read/write
 //     PORTC - The Port C Data Register - read/write
 //     PINC - The Port C Input Pins Register - read only 
 
 // http://gammon.com.au/interrupts
 // Below is a list of interrupts, in priority order, for the Atmega328:
-
 //  1  Reset 
 //  2  External Interrupt Request 0  (pin D2)          (INT0_vect)
 //  3  External Interrupt Request 1  (pin D3)          (INT1_vect)
@@ -112,24 +108,24 @@ void setup()
   // Serial.println("Hello, monitor");
   car4wd.attachWheel();
   btcar = &car4wd;
-   pinMode(CAR_MODE_INDICATOR_PIN, OUTPUT);
-  // digitalWrite(CAR_MODE_INDICATOR_PIN, LOW);
-   pinMode(PAD_MODE_INDICATOR_PIN, OUTPUT);
-  // digitalWrite(PAD_MODE_INDICATOR_PIN, HIGH);
+  pinMode(CAR_MODE_INDICATOR_PIN, OUTPUT);
+  digitalWrite(CAR_MODE_INDICATOR_PIN, LOW);
+  pinMode(PAD_MODE_INDICATOR_PIN, OUTPUT);
+  digitalWrite(PAD_MODE_INDICATOR_PIN, HIGH);
 //   pinMode(A0, INPUT);
 //   pinMode(A1, INPUT);
 //  DDRD |= (1<<DDD2); // Set digital pin 2 to output mode
 //  DDRB |= (1<<DDB5); // Set digital pin 13 to output mode
 //  DDRC &= ~(1<<DDC0); // Set analog pin A0 to input mode
 //  DDRC &= ~(1<<DDC5); // Set analog pin A5 to input mode
-  PORTD &= ~(1<<PORTD2); // make digital pin 2 low
-  PORTB &= ~(1<<PORTB5); // make digital pin 13 low
+  // PORTD &= ~(1<<PORTD2); // make digital pin 2 low
+  // PORTB &= ~(1<<PORTB5); // make digital pin 13 low
   
   // pin change interrupt
-  PCMSK1 |= bit (PCINT8); // want pin A0
-  PCMSK1 |= bit (PCINT13); // want pin A5
-  PCIFR  |= bit (PCIF1);   // clear any outstanding interrupts
-  PCICR  |= bit (PCIE1);   // enable pin change interrupts for A0 to A5
+  // PCMSK1 |= bit (PCINT8); // want pin A0
+  // PCMSK1 |= bit (PCINT13); // want pin A5
+  // PCIFR  |= bit (PCIF1);   // clear any outstanding interrupts
+  // PCICR  |= bit (PCIE1);   // enable pin change interrupts for A0 to A5
   Serial.setTimeout(300);
 }
 
