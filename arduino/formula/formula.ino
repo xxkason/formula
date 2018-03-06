@@ -149,7 +149,7 @@ void processMessage()
           PORTD &= ~(1<<PORTD2); // make digital pin 2 low
           break;
         case RECORD:
-          PORTD |= (1<<PORTD2); // make digital pin 2 high
+          //PORTD |= (1<<PORTD2); // make digital pin 2 high
           PORTB &= ~(1<<PORTB5); // make digital pin 13 low
           break;
         case REPLAY:
@@ -174,6 +174,11 @@ void processMessage()
           break;
       }
     }
+  }
+  else if (carMode == MANUAL && padMode == LEFT_PAD_KEY)
+  {
+    btcar->stop();
+    btcar->turn(CENTER_POSITION);
   }
   else if (carMode == RECORD)
     ledBlink(CAR_MODE_INDICATOR_PIN, 1000);
