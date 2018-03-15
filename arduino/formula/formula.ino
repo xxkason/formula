@@ -37,66 +37,68 @@ CarMode carMode = MANUAL;
 int romAddr = 0;
 unsigned long beginTime;
 
-// https://www.arduino.cc/en/Reference/PortManipulation
-// PORTD maps to Arduino digital pins 0 to 7
-//     DDRD - The Port D Data Direction Register - read/write
-//     PORTD - The Port D Data Register - read/write
-//     PIND - The Port D Input Pins Register - read only 
+/*
+https://www.arduino.cc/en/Reference/PortManipulation
+PORTD maps to Arduino digital pins 0 to 7
+    DDRD - The Port D Data Direction Register - read/write
+    PORTD - The Port D Data Register - read/write
+    PIND - The Port D Input Pins Register - read only 
 
-// PORTB maps to Arduino digital pins 8 to 13 The two high bits (6 & 7) map to the crystal pins and are not usable
-//     DDRB - The Port B Data Direction Register - read/write
-//     PORTB - The Port B Data Register - read/write
-//     PINB - The Port B Input Pins Register - read only 
+PORTB maps to Arduino digital pins 8 to 13 The two high bits (6 & 7) map to the crystal pins and are not usable
+    DDRB - The Port B Data Direction Register - read/write
+    PORTB - The Port B Data Register - read/write
+    PINB - The Port B Input Pins Register - read only 
 
-// PORTC maps to Arduino analog pins 0 to 5. Pins 6 & 7 are only accessible on the Arduino Mini
-//     DDRC - The Port C Data Direction Register - read/write
-//     PORTC - The Port C Data Register - read/write
-//     PINC - The Port C Input Pins Register - read only 
+PORTC maps to Arduino analog pins 0 to 5. Pins 6 & 7 are only accessible on the Arduino Mini
+    DDRC - The Port C Data Direction Register - read/write
+    PORTC - The Port C Data Register - read/write
+    PINC - The Port C Input Pins Register - read only 
 
-// http://gammon.com.au/interrupts
-// Below is a list of interrupts, in priority order, for the Atmega328:
-//  1  Reset 
-//  2  External Interrupt Request 0  (pin D2)          (INT0_vect)
-//  3  External Interrupt Request 1  (pin D3)          (INT1_vect)
-//  4  Pin Change Interrupt Request 0 (pins D8 to D13) (PCINT0_vect)
-//  5  Pin Change Interrupt Request 1 (pins A0 to A5)  (PCINT1_vect)
-//  6  Pin Change Interrupt Request 2 (pins D0 to D7)  (PCINT2_vect)
-//  7  Watchdog Time-out Interrupt                     (WDT_vect)
-//  8  Timer/Counter2 Compare Match A                  (TIMER2_COMPA_vect)
-//  9  Timer/Counter2 Compare Match B                  (TIMER2_COMPB_vect)
-// 10  Timer/Counter2 Overflow                         (TIMER2_OVF_vect)
-// 11  Timer/Counter1 Capture Event                    (TIMER1_CAPT_vect)
-// 12  Timer/Counter1 Compare Match A                  (TIMER1_COMPA_vect)
-// 13  Timer/Counter1 Compare Match B                  (TIMER1_COMPB_vect)
-// 14  Timer/Counter1 Overflow                         (TIMER1_OVF_vect)
-// 15  Timer/Counter0 Compare Match A                  (TIMER0_COMPA_vect)
-// 16  Timer/Counter0 Compare Match B                  (TIMER0_COMPB_vect)
-// 17  Timer/Counter0 Overflow                         (TIMER0_OVF_vect)
-// 18  SPI Serial Transfer Complete                    (SPI_STC_vect)
-// 19  USART Rx Complete                               (USART_RX_vect)
-// 20  USART, Data Register Empty                      (USART_UDRE_vect)
-// 21  USART, Tx Complete                              (USART_TX_vect)
-// 22  ADC Conversion Complete                         (ADC_vect)
-// 23  EEPROM Ready                                    (EE_READY_vect)
-// 24  Analog Comparator                               (ANALOG_COMP_vect)
-// 25  2-wire Serial Interface  (I2C)                  (TWI_vect)
-// 26  Store Program Memory Ready                      (SPM_READY_vect)
-//volatile boolean leftSensor = false;
-//volatile boolean rightSensor = false;
-//
-//ISR (PCINT1_vect)
-//{
-//  leftSensor = (PINC & bit(0));
-//  rightSensor = (PINC & bit(5));
-//  if (leftSensor & rightSensor)
-//    car4wd.turn(CENTER_POSITION);
-//  else if (~leftSensor & rightSensor)
-//    car4wd.turn(RIGHT_POSITION);
-//  else if (leftSensor & ~rightSensor)
-//    car4wd.turn(LEFT_POSITION);
-//  else
-//    car4wd.stop();
-//}
+http://gammon.com.au/interrupts
+Below is a list of interrupts, in priority order, for the Atmega328:
+ 1  Reset 
+ 2  External Interrupt Request 0  (pin D2)          (INT0_vect)
+ 3  External Interrupt Request 1  (pin D3)          (INT1_vect)
+ 4  Pin Change Interrupt Request 0 (pins D8 to D13) (PCINT0_vect)
+ 5  Pin Change Interrupt Request 1 (pins A0 to A5)  (PCINT1_vect)
+ 6  Pin Change Interrupt Request 2 (pins D0 to D7)  (PCINT2_vect)
+ 7  Watchdog Time-out Interrupt                     (WDT_vect)
+ 8  Timer/Counter2 Compare Match A                  (TIMER2_COMPA_vect)
+ 9  Timer/Counter2 Compare Match B                  (TIMER2_COMPB_vect)
+10  Timer/Counter2 Overflow                         (TIMER2_OVF_vect)
+11  Timer/Counter1 Capture Event                    (TIMER1_CAPT_vect)
+12  Timer/Counter1 Compare Match A                  (TIMER1_COMPA_vect)
+13  Timer/Counter1 Compare Match B                  (TIMER1_COMPB_vect)
+14  Timer/Counter1 Overflow                         (TIMER1_OVF_vect)
+15  Timer/Counter0 Compare Match A                  (TIMER0_COMPA_vect)
+16  Timer/Counter0 Compare Match B                  (TIMER0_COMPB_vect)
+17  Timer/Counter0 Overflow                         (TIMER0_OVF_vect)
+18  SPI Serial Transfer Complete                    (SPI_STC_vect)
+19  USART Rx Complete                               (USART_RX_vect)
+20  USART, Data Register Empty                      (USART_UDRE_vect)
+21  USART, Tx Complete                              (USART_TX_vect)
+22  ADC Conversion Complete                         (ADC_vect)
+23  EEPROM Ready                                    (EE_READY_vect)
+24  Analog Comparator                               (ANALOG_COMP_vect)
+25  2-wire Serial Interface  (I2C)                  (TWI_vect)
+26  Store Program Memory Ready                      (SPM_READY_vect)
+volatile boolean leftSensor = false;
+volatile boolean rightSensor = false;
+
+ISR (PCINT1_vect)
+{
+ leftSensor = (PINC & bit(0));
+ rightSensor = (PINC & bit(5));
+ if (leftSensor & rightSensor)
+   car4wd.turn(CENTER_POSITION);
+ else if (~leftSensor & rightSensor)
+   car4wd.turn(RIGHT_POSITION);
+ else if (leftSensor & ~rightSensor)
+   car4wd.turn(LEFT_POSITION);
+ else
+   car4wd.stop();
+}
+*/
 
 void setup()
 {
@@ -112,12 +114,12 @@ void setup()
   digitalWrite(CAR_MODE_INDICATOR_PIN, LOW);
   pinMode(PAD_MODE_INDICATOR_PIN, OUTPUT);
   digitalWrite(PAD_MODE_INDICATOR_PIN, HIGH);
-//   pinMode(A0, INPUT);
-//   pinMode(A1, INPUT);
-//  DDRD |= (1<<DDD2); // Set digital pin 2 to output mode
-//  DDRB |= (1<<DDB5); // Set digital pin 13 to output mode
-//  DDRC &= ~(1<<DDC0); // Set analog pin A0 to input mode
-//  DDRC &= ~(1<<DDC5); // Set analog pin A5 to input mode
+  //   pinMode(A0, INPUT);
+  //   pinMode(A1, INPUT);
+  //  DDRD |= (1<<DDD2); // Set digital pin 2 to output mode
+  //  DDRB |= (1<<DDB5); // Set digital pin 13 to output mode
+  //  DDRC &= ~(1<<DDC0); // Set analog pin A0 to input mode
+  //  DDRC &= ~(1<<DDC5); // Set analog pin A5 to input mode
   // PORTD &= ~(1<<PORTD2); // make digital pin 2 low
   // PORTB &= ~(1<<PORTB5); // make digital pin 13 low
   
