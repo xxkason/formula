@@ -348,22 +348,18 @@ void leftPadKey(char cmd)
     case 'f':
     case 'A':
       btcar->run(FOR);
-      //Serial.println("Run Forward");
       break;
     case 'b':
     case 'B':
       btcar->run(BACK);
-      //Serial.println("Run Backward");
       break;
     case 'l':
     case 'C':
       btcar->turn(LEFT_POSITION);
-      //Serial.println("Turn Left");
       break;
     case 'r':
     case 'D':
       btcar->turn(RIGHT_POSITION);
-      //Serial.println("Turn Right");
       break;
     case 'F':
       car4wd.uturn(FOR);
@@ -380,19 +376,15 @@ void rightPadKey(char cmd)
   {
     case 'I':
       btcar->run(FOR);
-      //Serial.println("Run Forward");
       break;
     case 'J':
       btcar->run(BACK);
-      //Serial.println("Run Backward");
       break;
     case 'K':
       btcar->turn(btcar->currentAngle() - 90);
-      //Serial.println("Turn Left");
       break;
     case 'L':
       btcar->turn(btcar->currentAngle() + 90);
-      //Serial.println("Turn Right");
       break;
     case 'E':
     case 'H':
