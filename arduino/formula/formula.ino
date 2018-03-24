@@ -7,9 +7,9 @@ Car_4WD car4wd(1, 2, 3, 4, 10);
 
 void setup()
 {
-  Serial.begin(GAMEPAD_BAUD_RATE);
   car4wd.attachWheel();
   btcar = &car4wd;
+  Serial.begin(GAMEPAD_BAUD_RATE);
 }
 
 void loop()
@@ -64,31 +64,37 @@ void loop()
 void processMessage()
 {
   String msg = Serial.readStringUntil('\n');
-  if (msg.startsWith("W"))
-  {
-    byte index = msg.indexOf("P");
-    String sub = msg.substring(1, index);
-    byte speed = sub.toInt();
-    if (speed < 127)
-    {
-      btcar->changeSpeed(255 - 2 * speed);
-      btcar->run(FOR);
-    }
-    else if (speed > 127)
-    {
-      btcar->changeSpeed(2 * speed - 255);
-      btcar->run(BACK);
-    }
-    else if (speed == 127)
-    {
-      btcar->stop();
-    }
-  }
-  else if (msg.startsWith("Q"))
+  
+  if (msg.startsWith("Q"))
   {
     byte index = msg.indexOf("S");
     String sub = msg.substring(++index);
     byte angle = sub.toInt();
     btcar->turn(angle * 180 / 256);
+    return;
+  }
+
+  if (msg.startsWith("W"))
+  {
+    byte index = msg.indexOf("P");
+    String sub = msg.substring(1, index);
+    byte speed = sub.toInt();
+
+    if (speed == 127)
+    {
+      btcar->stop();
+      return;
+    }
+    btcar->changeSpeed(abs(255 - 2 * speed));
+    if (speed < 127)
+    {
+      btcar->run(FOR);
+      return;
+    }
+    if (speed > 127)
+    {
+      btcar->run(BACK);
+      return;
+    }
   }
 }
