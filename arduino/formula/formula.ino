@@ -15,50 +15,51 @@ void setup()
 void loop()
 {
   processMessage();
+  //messageHandler();
 }
 
-void messageHandler()
-{
-  char msg[1];
-  if (Serial.readBytes(msg, 1))
-  {
-    char cmd = msg[0];
-    switch (cmd)
-    {
-      case 'W':
-        byte speed;
-        speed = Serial.parseInt();
-        if (speed < 127)
-        {
-          btcar->changeSpeed(255 - 2 * speed);
-          btcar->run(FOR);
-        }
-        else if (speed > 127)
-        {
-          btcar->changeSpeed(2 * speed - 255);
-          btcar->run(BACK);
-        }
-        else if (speed == 127)
-        {
-          btcar->stop();
-        }
-
-        // clear the followed message "Pxxx\n"
-        Serial.readStringUntil('\n');
-        // clear end
-        break;
-      case 'Q':
-        // clear the initial message "Qxxx"
-        Serial.readStringUntil('S');
-        // clear end
-
-        byte angle;
-        angle = Serial.parseInt();
-        btcar->turn(angle * 180 / 256);
-        break;
-    }
-  }
-}
+//void messageHandler()
+//{
+//  char msg[1];
+//  if (Serial.readBytes(msg, 1))
+//  {
+//    char cmd = msg[0];
+//    switch (cmd)
+//    {
+//      case 'W':
+//        byte speed;
+//        speed = Serial.parseInt();
+//        if (speed < 127)
+//        {
+//          btcar->changeSpeed(255 - 2 * speed);
+//          btcar->run(FOR);
+//        }
+//        else if (speed > 127)
+//        {
+//          btcar->changeSpeed(2 * speed - 255);
+//          btcar->run(BACK);
+//        }
+//        else if (speed == 127)
+//        {
+//          btcar->stop();
+//        }
+//
+//        // clear the followed message "Pxxx\n"
+//        Serial.readStringUntil('\n');
+//        // clear end
+//        break;
+//      case 'Q':
+//        // clear the initial message "Qxxx"
+//        Serial.readStringUntil('S');
+//        // clear end
+//
+//        byte angle;
+//        angle = Serial.parseInt();
+//        btcar->turn(angle * 180 / 256);
+//        break;
+//    }
+//  }
+//}
 
 void processMessage()
 {
