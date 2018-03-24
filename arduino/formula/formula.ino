@@ -14,6 +14,11 @@ void setup()
 
 void loop()
 {
+  processMessage();
+}
+
+void messageHandler()
+{
   char msg[1];
   if (Serial.readBytes(msg, 1))
   {
@@ -23,11 +28,6 @@ void loop()
       case 'W':
         byte speed;
         speed = Serial.parseInt();
-
-        // clear the followed message "Pxxx\n"
-        Serial.readStringUntil('\n');
-        // clear end
-
         if (speed < 127)
         {
           btcar->changeSpeed(255 - 2 * speed);
@@ -42,6 +42,10 @@ void loop()
         {
           btcar->stop();
         }
+
+        // clear the followed message "Pxxx\n"
+        Serial.readStringUntil('\n');
+        // clear end
         break;
       case 'Q':
         // clear the initial message "Qxxx"
@@ -53,5 +57,37 @@ void loop()
         btcar->turn(angle * 180 / 256);
         break;
     }
+  }
+}
+
+void processMessage()
+{
+  String msg = Serial.readStringUntil('\n');
+  if (msg.startsWith("W"))
+  {
+    byte index = msg.indexOf("P");
+    String sub = msg.substring(1, index);
+    byte speed = sub.toInt();
+    if (speed < 127)
+    {
+      btcar->changeSpeed(255 - 2 * speed);
+      btcar->run(FOR);
+    }
+    else if (speed > 127)
+    {
+      btcar->changeSpeed(2 * speed - 255);
+      btcar->run(BACK);
+    }
+    else if (speed == 127)
+    {
+      btcar->stop();
+    }
+  }
+  else if (msg.startsWith("Q"))
+  {
+    byte index = msg.indexOf("S");
+    String sub = msg.substring(++index);
+    byte angle = sub.toInt();
+    btcar->turn(angle * 180 / 256);
   }
 }
